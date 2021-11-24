@@ -11,7 +11,7 @@ from drf_yasg import openapi
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-
+# Offset pegination is added to category need to test
 class CategoryAPI(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
