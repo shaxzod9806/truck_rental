@@ -4,7 +4,7 @@ stages:
 
 variables:
   DIR: "/tmp/motochas_app"
-  SSH_CONNECT: "root@172.16.0.1"
+  SSH_CONNECT: "root@172.20.0.1"
 
 Drop:
   stage: drop
