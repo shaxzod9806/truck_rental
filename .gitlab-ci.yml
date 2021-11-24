@@ -10,7 +10,7 @@ Drop:
   stage: drop
   script:
     - ssh ${SSH_CONNECT} "docker stop moto-backend || true && docker rm moto-backend || true && docker rmi motochas_app:latest || true"
-    - ssh ${SSH_CONNECT} "mkdir ${DIR}"
+    - ssh ${SSH_CONNECT} "mkdir -p ${DIR}"
   only:
     - main
   tags:
