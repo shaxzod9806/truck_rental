@@ -26,7 +26,7 @@ Build and start docker images:
         --restart=always
         --name=moto-backend 
         -v moto-static-data:/vol/web 
-        --network=moto-network
+        --network=motochas_moto-network
         -e DB_HOST=moto-db 
         -e DB_NAME=moto-database 
         -e DB_USER=postgres 
