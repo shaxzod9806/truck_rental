@@ -10,9 +10,11 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.pagination import LimitOffsetPagination
+
 
 # Offset pegination is added to category need to test
-class CategoryAPI(APIView):
+class CategoryAPI(APIView, LimitOffsetPagination):
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
@@ -53,11 +55,15 @@ class CategoryAPI(APIView):
         except:
             return Response({"detail": "Category does not exist"})
 
-    @swagger_auto_schema(manual_parameters=[param_config])
+    limit = openapi.Parameter('limit', in_=openapi.IN_QUERY, description='enter limit', type=openapi.TYPE_INTEGER)
+    offset = openapi.Parameter('offset', in_=openapi.IN_QUERY, description='enter offset', type=openapi.TYPE_INTEGER)
+
+    @swagger_auto_schema(manual_parameters=[param_config, limit])
     def get(self, request):
         category = Category.objects.all()
-        serializer = CategorySerializer(category, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        results = self.paginate_queryset(category, request, view=self)
+        serializer = CategorySerializer(results, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class SingleCategory(APIView):
