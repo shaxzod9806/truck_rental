@@ -58,7 +58,7 @@ class CategoryAPI(APIView, LimitOffsetPagination):
     limit = openapi.Parameter('limit', in_=openapi.IN_QUERY, description='enter limit', type=openapi.TYPE_INTEGER)
     offset = openapi.Parameter('offset', in_=openapi.IN_QUERY, description='enter offset', type=openapi.TYPE_INTEGER)
 
-    @swagger_auto_schema(manual_parameters=[param_config, limit])
+    @swagger_auto_schema(manual_parameters=[param_config, limit, offset])
     def get(self, request):
         category = Category.objects.all()
         results = self.paginate_queryset(category, request, view=self)
