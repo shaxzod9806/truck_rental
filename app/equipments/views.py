@@ -10,13 +10,19 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from utilities.pagination import PaginationHandlerMixin
 
 
-# Offset pegination is added to category need to test
-class CategoryAPI(APIView, LimitOffsetPagination):
+class BasicPagination(PageNumberPagination):
+    page_size_query_param = 'limit'
+
+
+class CategoryAPI(APIView, PaginationHandlerMixin):
+    pagination_class = BasicPagination
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
+    serializer_class = CategorySerializer
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
@@ -55,15 +61,17 @@ class CategoryAPI(APIView, LimitOffsetPagination):
         except:
             return Response({"detail": "Category does not exist"})
 
-    limit = openapi.Parameter('limit', in_=openapi.IN_QUERY, description='enter limit', type=openapi.TYPE_INTEGER)
-    offset = openapi.Parameter('offset', in_=openapi.IN_QUERY, description='enter offset', type=openapi.TYPE_INTEGER)
 
-    @swagger_auto_schema(manual_parameters=[param_config, limit, offset])
+    @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
         category = Category.objects.all()
-        results = self.paginate_queryset(category, request, view=self)
-        serializer = CategorySerializer(results, many=True)
-        return self.get_paginated_response(serializer.data)
+        page = self.paginate_queryset(category)
+        serializer = CategorySerializer(page, many=True)
+        if page is not None:
+            serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+        else:
+            serializer = self.serializer_class(category, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SingleCategory(APIView):
