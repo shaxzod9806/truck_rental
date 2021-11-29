@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
-
-from .serializers import CategorySerializer, SubCatSerializer, EquipmentsSerializer, AdditionsSerializer
+from .serializers import CategorySerializer, SubCatSerializer, EquipmentsSerializer, AdditionsSerializer, \
+    CategorySerializerUz, CategorySerializerRu, CategorySerializerEn
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from .models import Category, SubCategory, Equipment, AdditionalProps
 # Create your views here.
@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from utilities.pagination import PaginationHandlerMixin
+from rest_framework import filters
 
 
 class BasicPagination(PageNumberPagination):
@@ -23,6 +24,9 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = CategorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name_uz', 'name_ru', 'name_en']
+
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
@@ -61,14 +65,24 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
         except:
             return Response({"detail": "Category does not exist"})
 
+    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru ', type=openapi.TYPE_STRING)
 
-    @swagger_auto_schema(manual_parameters=[param_config])
+    @swagger_auto_schema(manual_parameters=[param_config, lang])
     def get(self, request):
         category = Category.objects.all()
         page = self.paginate_queryset(category)
+        lang = request.GET.get("lang")
+
         serializer = CategorySerializer(page, many=True)
         if page is not None:
-            serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+            if lang == "uz":
+                serializer = self.get_paginated_response(CategorySerializerUz(page, many=True).data)
+            elif lang == "ru":
+                serializer = self.get_paginated_response(CategorySerializerRu(page, many=True).data)
+            elif lang == "en":
+                serializer = self.get_paginated_response(CategorySerializerEn(page, many=True).data)
+            else:
+                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         else:
             serializer = self.serializer_class(category, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

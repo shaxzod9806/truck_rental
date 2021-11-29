@@ -8,6 +8,24 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CategorySerializerUz(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['name_uz', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+
+
+class CategorySerializerRu(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['name_ru', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+
+
+class CategorySerializerEn(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['name_en', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+
+
 class SubCatSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubCategory
