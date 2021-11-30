@@ -66,8 +66,11 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
             return Response({"detail": "Category does not exist"})
 
     lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru ', type=openapi.TYPE_STRING)
+    ordering = openapi.Parameter('ordering', in_=openapi.IN_QUERY,  type=openapi.TYPE_STRING,
+                                 description='Enter field name to order for example: "cat_name" ascending; '
+                                             'put "-" for reverse ordering: "-cat_name"')
 
-    @swagger_auto_schema(manual_parameters=[param_config, lang])
+    @swagger_auto_schema(manual_parameters=[param_config, lang, ordering])
     def get(self, request):
         category = Category.objects.all()
         page = self.paginate_queryset(category)
@@ -84,7 +87,14 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
             else:
                 serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         else:
-            serializer = self.serializer_class(category, many=True)
+            if lang == "uz":
+                serializer = self.get_paginated_response(CategorySerializerUz(page, many=True).data)
+            elif lang == "ru":
+                serializer = self.get_paginated_response(CategorySerializerRu(page, many=True).data)
+            elif lang == "en":
+                serializer = self.get_paginated_response(CategorySerializerEn(page, many=True).data)
+            else:
+                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
