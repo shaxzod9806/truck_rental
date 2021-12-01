@@ -9,21 +9,39 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class CategorySerializerUz(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField('name_uz')
+
+    def name_uz(self,  obj):
+        name = obj.name_uz
+        return name
+
     class Meta:
         model = Category
-        fields = ['id', 'name_uz', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+        fields = ['id', 'name', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
 
 
 class CategorySerializerRu(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField('name_ru')
+
+    def name_ru(self, obj):
+        name = obj.name_ru
+        return name
+
     class Meta:
         model = Category
-        fields = ['id', 'name_ru', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+        fields = ['id', 'name', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
 
 
 class CategorySerializerEn(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField('name_en')
+
+    def name_en(self, obj):
+        name = obj.name_en
+        return name
+
     class Meta:
         model = Category
-        fields = ['id', 'name_en', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+        fields = ['id', 'name', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
 
 
 class SubCatSerializer(serializers.ModelSerializer):
