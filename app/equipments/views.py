@@ -1,7 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CategorySerializer, SubCatSerializer, EquipmentsSerializer, AdditionsSerializer, \
-    CategorySerializerUz, CategorySerializerRu, CategorySerializerEn
+    CategorySerializerUz, SubCatSerializerUz, CategorySerializerRu, SubCatSerializerRu, CategorySerializerEn, \
+    SubCatSerializerEn
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from .models import Category, SubCategory, Equipment, AdditionalProps
 # Create your views here.
@@ -31,7 +32,8 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
 
-    @swagger_auto_schema(request_body=CategorySerializer, parser_classes=parser_classes, manual_parameters=[param_config])
+    @swagger_auto_schema(request_body=CategorySerializer, parser_classes=parser_classes,
+                         manual_parameters=[param_config])
     def post(self, request):
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
@@ -66,7 +68,7 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
             return Response({"detail": "Category does not exist"})
 
     lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru ', type=openapi.TYPE_STRING)
-    ordering = openapi.Parameter('ordering', in_=openapi.IN_QUERY,  type=openapi.TYPE_STRING,
+    ordering = openapi.Parameter('ordering', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                  description='Enter field name to order for example: "cat_name" ascending; '
                                              'put "-" for reverse ordering: "-cat_name"')
 
@@ -117,14 +119,20 @@ class SingleCategory(APIView):
             return Response({"detail": "category does not exist"})
 
 
-class SubCatApi(APIView):
+class SubCatApi(APIView, PaginationHandlerMixin):
+    pagination_class = BasicPagination
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
+    serializer_class = SubCatSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name','name_uz', 'name_ru', 'name_en']
+
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
 
-    @swagger_auto_schema(request_body=SubCatSerializer, parser_classes=parser_classes, manual_parameters=[param_config])
+    @swagger_auto_schema(request_body=SubCatSerializer, parser_classes=parser_classes,
+                         manual_parameters=[param_config])
     def post(self, request):
         serializer = SubCatSerializer(data=request.data)
         if serializer.is_valid():
@@ -140,8 +148,8 @@ class SubCatApi(APIView):
     @swagger_auto_schema(request_body=SubCatSerializer, parser_classes=parser_classes,
                          manual_parameters=[sub_cat_id, param_config])
     def put(self, request):
-        cat_id = request.data["sub_cat_id"]
-        sub_category = SubCategory.objects.get(id=int(cat_id))
+        sub_cat_id = request.data["sub_cat_id"]
+        sub_category = SubCategory.objects.get(id=int(sub_cat_id))
         serializer = SubCatSerializer(sub_category, many=False, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -154,14 +162,44 @@ class SubCatApi(APIView):
         try:
             sub_cat = SubCategory.objects.get(id=int(request.data["sub_cat_id"]))
             sub_cat.delete()
-            return Response({"detail": "category is deleted"}, status=status.HTTP_200_OK)
+            return Response({"detail": "SubCategory is deleted"}, status=status.HTTP_200_OK)
         except:
-            return Response({"detail": "Category does not exist"})
+            return Response({"detail": "SubCategory does not exist"})
 
-    @swagger_auto_schema(manual_parameters=[param_config])
+    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru', type=openapi.TYPE_STRING)
+    ordering = openapi.Parameter(
+        'ordering', in_=openapi.IN_QUERY,
+        type=openapi.TYPE_STRING,
+        description='Enter field name to order for example: '
+                    '"sub_cat_name" ascending; '
+                    'put "-" for reverse ordering: "-sub_cat_name"'
+    )
+
+    @swagger_auto_schema(manual_parameters=[param_config, lang, ordering])
     def get(self, request):
-        category = SubCategory.objects.all()
-        serializer = SubCatSerializer(category, many=True)
+        sub_category = SubCategory.objects.all()
+        page = self.paginate_queryset(sub_category)
+        lang = request.GET.get("lang")
+
+        serializer = SubCatSerializer(page, many=True)
+        if page is not None:
+            if lang == "uz":
+                serializer = self.get_paginated_response(SubCatSerializerUz(page, many=True).data)
+            elif lang == "ru":
+                serializer = self.get_paginated_response(SubCatSerializerRu(page, many=True).data)
+            elif lang == "en":
+                serializer = self.get_paginated_response(SubCatSerializerEn(page, many=True).data)
+            else:
+                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+        else:
+            if lang == "uz":
+                serializer = self.get_paginated_response(SubCatSerializer(page, many=True).data)
+            elif lang == "ru":
+                serializer = self.get_paginated_response(SubCatSerializer(page, many=True).data)
+            elif lang == "en":
+                serializer = self.get_paginated_response(SubCatSerializer(page, many=True).data)
+            else:
+                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -208,7 +246,8 @@ class EquipmentAPI(APIView):
     @swagger_auto_schema(request_body=EquipmentsSerializer, parser_classes=parser_classes,
                          manual_parameters=[equipment_id, param_config])
     def put(self, request):
-        cat_id = request.data["equipment_id"]
+        cat_id = request.data
+        ["equipment_id"]
         equipment = Equipment.objects.get(id=int(cat_id))
         serializer = EquipmentsSerializer(equipment, many=False, data=request.data)
         if serializer.is_valid():
@@ -257,7 +296,7 @@ class AdditionsApi(APIView):
                                      type=openapi.TYPE_STRING)
 
     @swagger_auto_schema(manual_parameters=[param_config], request_body=AdditionsSerializer)
-    def post(self, request,  parser_classes=parser_classes):
+    def post(self, request, parser_classes=parser_classes):
         serializer = AdditionsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -310,22 +349,3 @@ class SingleAddition(APIView):
             return Response(serializer.data)
         except:
             return Response({"detail": "Addition does not exist"})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
