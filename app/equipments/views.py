@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CategorySerializer, SubCatSerializer, EquipmentsSerializer, AdditionsSerializer, \
     CategorySerializerUz, SubCatSerializerUz, CategorySerializerRu, SubCatSerializerRu, CategorySerializerEn, \
-    SubCatSerializerEn
+    SubCatSerializerEn, EquipmentsSerializerUz, EquipmentsSerializerRu, EquipmentsSerializerEn
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from .models import Category, SubCategory, Equipment, AdditionalProps
 # Create your views here.
@@ -125,7 +125,7 @@ class SubCatApi(APIView, PaginationHandlerMixin):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = SubCatSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name','name_uz', 'name_ru', 'name_en']
+    search_fields = ['name', 'name_uz', 'name_ru', 'name_en']
 
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
@@ -193,11 +193,11 @@ class SubCatApi(APIView, PaginationHandlerMixin):
                 serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         else:
             if lang == "uz":
-                serializer = self.get_paginated_response(SubCatSerializer(page, many=True).data)
+                serializer = self.get_paginated_response(SubCatSerializerUz(page, many=True).data)
             elif lang == "ru":
-                serializer = self.get_paginated_response(SubCatSerializer(page, many=True).data)
+                serializer = self.get_paginated_response(SubCatSerializerRu(page, many=True).data)
             elif lang == "en":
-                serializer = self.get_paginated_response(SubCatSerializer(page, many=True).data)
+                serializer = self.get_paginated_response(SubCatSerializerEn(page, many=True).data)
             else:
                 serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -222,9 +222,14 @@ class SingleSubCategory(APIView):
             return Response({"detail": "category does not exist"})
 
 
-class EquipmentAPI(APIView):
+class EquipmentAPI(APIView, PaginationHandlerMixin):
+    pagination_class = BasicPagination  # 1
+    serializer_class = EquipmentsSerializer  # 2
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'name_uz', 'name_ru', 'name_en']
+
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
@@ -265,10 +270,40 @@ class EquipmentAPI(APIView):
         except:
             return Response({"detail": "equipment does not exist"})
 
-    @swagger_auto_schema(manual_parameters=[param_config])
+    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru', type=openapi.TYPE_STRING)
+    ordering = openapi.Parameter(
+        'ordering', in_=openapi.IN_QUERY,
+        type=openapi.TYPE_STRING,
+        description='Enter field name to order for example: '
+                    '"equipment" ascending; '
+                    'put "-" for reverse ordering: "-equipment"'
+    )
+
+    @swagger_auto_schema(manual_parameters=[param_config,lang,ordering])
     def get(self, request):
         equipment = Equipment.objects.all()
+        page = self.paginate_queryset(equipment)
+        lang = request.GET.get("lang")
+
         serializer = SubCatSerializer(equipment, many=True)
+        if page is not None:
+            if lang == "uz":
+                serializer = self.get_paginated_response(EquipmentsSerializerUz(page, many=True).data)
+            elif lang == "ru":
+                serializer = self.get_paginated_response(EquipmentsSerializerRu(page, many=True).data)
+            elif lang == "en":
+                serializer = self.get_paginated_response(EquipmentsSerializerEn(page, many=True).data)
+            else:
+                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+        else:
+            if lang == "uz":
+                serializer = self.get_paginated_response(EquipmentsSerializerUz(page, many=True).data)
+            elif lang == "ru":
+                serializer = self.get_paginated_response(EquipmentsSerializerRu(page, many=True).data)
+            elif lang == "en":
+                serializer = self.get_paginated_response(EquipmentsSerializerEn(page, many=True).data)
+            else:
+                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
