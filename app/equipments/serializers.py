@@ -59,7 +59,7 @@ class SubCatSerializerUz(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+        fields = ['id', 'name', 'image', 'category', 'created_at', 'updated_at', 'created_by', 'updated_by']
 
 
 class SubCatSerializerRu(serializers.ModelSerializer):
@@ -71,7 +71,7 @@ class SubCatSerializerRu(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+        fields = ['id', 'name', 'image', 'category', 'created_at', 'updated_at', 'created_by', 'updated_by']
 
 
 class SubCatSerializerEn(serializers.ModelSerializer):
@@ -83,13 +83,52 @@ class SubCatSerializerEn(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'image', 'created_at', 'updated_at', 'created_by', 'updated_by']
+        fields = ['id', 'name', 'image', 'category', 'created_at', 'updated_at', 'created_by', 'updated_by']
 
 
 class EquipmentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipment
         fields = "__all__"
+
+
+class EquipmentsSerializerUz(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField('name_uz')
+
+    def name_uz(self, obj):
+        name = obj.name_uz
+        return name
+
+    class Meta:
+        model = Equipment
+        fields = ['id', 'name', 'image', 'category', 'sub_category', 'created_at', 'updated_at', 'created_by',
+                  'updated_by']
+
+
+class EquipmentsSerializerRu(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField('name_ru')
+
+    def name_ru(self, obj):
+        name = obj.name_ru
+        return name
+
+    class Meta:
+        model = Equipment
+        fields = ['id', 'name', 'image', 'category', 'sub_category', 'created_at', 'updated_at', 'created_by',
+                  'updated_by']
+
+
+class EquipmentsSerializerEn(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField('name_en')
+
+    def name_en(self, obj):
+        name = obj.name_en
+        return name
+
+    class Meta:
+        model = Equipment
+        fields = ['id', 'name', 'image', 'category', 'sub_category', 'created_at', 'updated_at', 'created_by',
+                  'updated_by']
 
 
 class AdditionsSerializer(serializers.ModelSerializer):
