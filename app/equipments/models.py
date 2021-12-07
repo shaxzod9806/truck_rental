@@ -1,13 +1,25 @@
 from django.db import models
 from index.models import User
+
 # Create your models here.
 upload_path = 'equipments/'
+upload_path_brand = 'equipments/brands'
+
+
+class Brand(models.Model):
+    brand_name = models.CharField(max_length=255, null=True)
+    brand_image = models.ImageField(upload_to=upload_path_brand, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class Category(models.Model):
     name_uz = models.CharField(max_length=255)
     name_ru = models.CharField(max_length=255)
     name_en = models.CharField(max_length=255)
+    description_uz = models.TextField(blank=True)
+    description_ru = models.TextField(blank=True)
+    description_en = models.TextField(blank=True)
     image = models.ImageField(upload_to=upload_path, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -28,6 +40,9 @@ class SubCategory(models.Model):
     name_uz = models.CharField(max_length=255)
     name_ru = models.CharField(max_length=255)
     name_en = models.CharField(max_length=255)
+    description_uz = models.TextField(blank=True)
+    description_ru = models.TextField(blank=True)
+    description_en = models.TextField(blank=True)
     image = models.ImageField(upload_to=upload_path, null=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -50,6 +65,7 @@ class Equipment(models.Model):
     name_ru = models.CharField(max_length=255)
     name_en = models.CharField(max_length=255)
     image = models.ImageField(upload_to=upload_path)
+    brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -74,12 +90,3 @@ class AdditionalProps(models.Model):
     equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-
-
-
-
-
-
-
-

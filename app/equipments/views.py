@@ -2,9 +2,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CategorySerializer, SubCatSerializer, EquipmentsSerializer, AdditionsSerializer, \
     CategorySerializerUz, SubCatSerializerUz, CategorySerializerRu, SubCatSerializerRu, CategorySerializerEn, \
-    SubCatSerializerEn, EquipmentsSerializerUz, EquipmentsSerializerRu, EquipmentsSerializerEn
+    SubCatSerializerEn, EquipmentsSerializerUz, EquipmentsSerializerRu, EquipmentsSerializerEn,\
+    BrandSerializer
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
-from .models import Category, SubCategory, Equipment, AdditionalProps
+from .models import Category, SubCategory, Equipment, AdditionalProps,\
+    Brand
 # Create your views here.
 
 from drf_yasg.utils import swagger_auto_schema
@@ -20,17 +22,86 @@ class BasicPagination(PageNumberPagination):
     page_size_query_param = 'limit'
 
 
+class BrandAPI(APIView, PaginationHandlerMixin):
+    pagination_class = BasicPagination
+    permission_class = [IsAuthenticated, IsAdminUser]
+    parser_classes = (MultiPartParser, FormParser)
+    serializer_class = BrandSerializer
+
+    param_config = openapi.Parameter(
+        'Authorization',
+        in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(request_body=BrandSerializer, parser_classes=parser_classes,
+                         manual_parameters=[param_config])
+    def post(self, request):
+        serializer = BrandSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    brand_id = openapi.Parameter(
+        'brand_id', in_=openapi.IN_FORM,
+        description='enter category ID',
+        type=openapi.TYPE_INTEGER
+    )
+
+    @swagger_auto_schema(request_body=BrandSerializer, parser_classes=parser_classes,
+                         manual_parameters=[brand_id, param_config])
+    def put(self, request):
+        brand_id = request.data["brand_id"]
+        brand = Brand.objects.get(id=int(brand_id))
+        serializer = BrandSerializer(brand, many=True, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(manual_parameters=[brand_id, param_config])
+    def delete(self, request):
+        try:
+            brand = Brand.objects.get(id=int(request.data['brand_id']))
+            brand.delete()
+            return Response({'detail': 'Brand is deleted'}, status=status.HTTP_200_OK)
+        except:
+            return Response({'detail': 'Brand does not exist'})
+
+    ordering = openapi.Parameter('ordering', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                                 description='Enter field name to order for example: "brand_name" ascending; '
+                                             'put "-" for reverse ordering: "-brand_name"')
+
+    @swagger_auto_schema(manual_parameters=[param_config, ordering])
+    def get(self, request):
+        brand = Brand.objects.all()
+        page = self.paginate_queryset(brand)
+
+        serializer = BrandSerializer(page, many=True)
+        if page is not None:
+            serializer = self.get_paginated_response(BrandSerializer(page, many=True).data)
+        else:
+            serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class CategoryAPI(APIView, PaginationHandlerMixin):
     pagination_class = BasicPagination
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = CategorySerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name_uz', 'name_ru', 'name_en']
 
-    param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
-                                     description='enter access token with Bearer word for example: Bearer token',
-                                     type=openapi.TYPE_STRING)
+    param_config = openapi.Parameter(
+        'Authorization',
+        in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
 
     @swagger_auto_schema(request_body=CategorySerializer, parser_classes=parser_classes,
                          manual_parameters=[param_config])
@@ -42,9 +113,11 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    cat_id = openapi.Parameter('cat_id', in_=openapi.IN_FORM,
-                               description='enter category ID',
-                               type=openapi.TYPE_INTEGER)
+    cat_id = openapi.Parameter(
+        'cat_id', in_=openapi.IN_FORM,
+        description='enter category ID',
+        type=openapi.TYPE_INTEGER
+    )
 
     @swagger_auto_schema(request_body=CategorySerializer, parser_classes=parser_classes,
                          manual_parameters=[cat_id, param_config])
@@ -67,6 +140,8 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
         except:
             return Response({"detail": "Category does not exist"})
 
+    # filter = openapi.Parameter('filter', in_=openapi.IN_QUERY, description='enter filter fields',
+    #                            type=openapi.TYPE_STRING)
     lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru ', type=openapi.TYPE_STRING)
     ordering = openapi.Parameter('ordering', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                  description='Enter field name to order for example: "cat_name" ascending; '
@@ -125,7 +200,7 @@ class SubCatApi(APIView, PaginationHandlerMixin):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = SubCatSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'name_uz', 'name_ru', 'name_en']
+    search_fields = ['name_uz', 'name_ru', 'name_en']
 
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
@@ -227,8 +302,12 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
     serializer_class = EquipmentsSerializer  # 2
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'name_uz', 'name_ru', 'name_en']
+
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('id', 'name', 'update_ts')
+    ordering = ('id',)
+
+    # search_fields = ['name', 'name_uz', 'name_ru', 'name_en']
 
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
@@ -279,11 +358,12 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
                     'put "-" for reverse ordering: "-equipment"'
     )
 
-    @swagger_auto_schema(manual_parameters=[param_config,lang,ordering])
+    @swagger_auto_schema(manual_parameters=[param_config, lang, ordering])
     def get(self, request):
         equipment = Equipment.objects.all()
         page = self.paginate_queryset(equipment)
         lang = request.GET.get("lang")
+        # filter = ProductFilter(request.GET, queryset=Product.objects.all())
 
         serializer = SubCatSerializer(equipment, many=True)
         if page is not None:
@@ -305,6 +385,7 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
             else:
                 serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
         return Response(serializer.data, status=status.HTTP_200_OK)
+        # return Response(serializer.data, {'filter': filter}, status=status.HTTP_200_OK)
 
 
 class SingleEquipment(APIView):
@@ -378,6 +459,12 @@ class SingleAddition(APIView):
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request, pk):
+        """
+
+        :param request:
+        :param pk:
+        :return:
+        """
         try:
             addition = AdditionalProps.objects.get(id=pk)
             serializer = AdditionsSerializer(addition, many=False)

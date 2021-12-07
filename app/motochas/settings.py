@@ -63,7 +63,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    "PAGE_SIZE": 10
+    "PAGE_SIZE": 10,
+    # 'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 
 }
 
@@ -201,6 +202,3 @@ STATIC_ROOT = '/vol/web/static'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# 1 git add .
-# 2 git commit -m 'subcat pegination, search,ordering, language are done'
-# 3 git push
