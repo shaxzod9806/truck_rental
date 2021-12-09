@@ -2,10 +2,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import CategorySerializer, SubCatSerializer, EquipmentsSerializer, AdditionsSerializer, \
     CategorySerializerUz, SubCatSerializerUz, CategorySerializerRu, SubCatSerializerRu, CategorySerializerEn, \
-    SubCatSerializerEn, EquipmentsSerializerUz, EquipmentsSerializerRu, EquipmentsSerializerEn,\
+    SubCatSerializerEn, EquipmentsSerializerUz, EquipmentsSerializerRu, EquipmentsSerializerEn, \
     BrandSerializer
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
-from .models import Category, SubCategory, Equipment, AdditionalProps,\
+from .models import Category, SubCategory, Equipment, AdditionalProps, \
     Brand
 # Create your views here.
 
@@ -56,7 +56,7 @@ class BrandAPI(APIView, PaginationHandlerMixin):
     def put(self, request):
         brand_id = request.data["brand_id"]
         brand = Brand.objects.get(id=int(brand_id))
-        serializer = BrandSerializer(brand, many=True, data=request.data)
+        serializer = BrandSerializer(brand, many=False, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -70,7 +70,7 @@ class BrandAPI(APIView, PaginationHandlerMixin):
             brand.delete()
             return Response({'detail': 'Brand is deleted'}, status=status.HTTP_200_OK)
         except:
-            return Response({'detail': 'Brand does not exist'})
+            return Response({'detail': 'Brand does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
     ordering = openapi.Parameter('ordering', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                  description='Enter field name to order for example: "brand_name" ascending; '
@@ -88,6 +88,30 @@ class BrandAPI(APIView, PaginationHandlerMixin):
             serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SingleBrand(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    param_config = openapi.Parameter(
+        'Authorization',
+        in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+    brand_id = openapi.Parameter(
+        'brand_id', in_=openapi.IN_BODY,
+        description='enter brand_id',
+        type=openapi.TYPE_INTEGER
+    )
+
+    @swagger_auto_schema(manual_parametrs=[param_config])
+    def get(self, request, pk):
+        try:
+            brand = Brand.objects.get(id=pk)
+            serializer = BrandSerializer(brand, many=False)
+            return Response(serializer.data)
+        except:
+            return Response({'detail': 'Brand does not exist'})
 
 
 class CategoryAPI(APIView, PaginationHandlerMixin):
@@ -138,7 +162,7 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
             category.delete()
             return Response({"detail": "category is deleted"}, status=status.HTTP_200_OK)
         except:
-            return Response({"detail": "Category does not exist"})
+            return Response({"detail": "Category does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
     # filter = openapi.Parameter('filter', in_=openapi.IN_QUERY, description='enter filter fields',
     #                            type=openapi.TYPE_STRING)
@@ -239,7 +263,7 @@ class SubCatApi(APIView, PaginationHandlerMixin):
             sub_cat.delete()
             return Response({"detail": "SubCategory is deleted"}, status=status.HTTP_200_OK)
         except:
-            return Response({"detail": "SubCategory does not exist"})
+            return Response({"detail": "SubCategory does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
     lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru', type=openapi.TYPE_STRING)
     ordering = openapi.Parameter(
@@ -283,9 +307,6 @@ class SingleSubCategory(APIView):
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
-    cat_id = openapi.Parameter('sub_cat_id', in_=openapi.IN_BODY,
-                               description='enter sub_cat_id',
-                               type=openapi.TYPE_INTEGER)
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request, pk):
@@ -347,7 +368,7 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
             equipment.delete()
             return Response({"detail": "equipment is deleted"}, status=status.HTTP_200_OK)
         except:
-            return Response({"detail": "equipment does not exist"})
+            return Response({"detail": "equipment does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
     lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru', type=openapi.TYPE_STRING)
     ordering = openapi.Parameter(
@@ -448,7 +469,7 @@ class AdditionsApi(APIView):
             addition.delete()
             return Response({"detail": "addition is deleted"}, status=status.HTTP_200_OK)
         except:
-            return Response({"detail": "addition does not exist"})
+            return Response({"detail": "addition does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SingleAddition(APIView):
