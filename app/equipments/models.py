@@ -17,6 +17,7 @@ class Category(models.Model):
     name_uz = models.CharField(max_length=255)
     name_ru = models.CharField(max_length=255)
     name_en = models.CharField(max_length=255)
+
     description_uz = models.TextField(blank=True)
     description_ru = models.TextField(blank=True)
     description_en = models.TextField(blank=True)
@@ -43,7 +44,7 @@ class SubCategory(models.Model):
     description_uz = models.TextField(blank=True)
     description_ru = models.TextField(blank=True)
     description_en = models.TextField(blank=True)
-    image = models.ImageField(upload_to=upload_path, null=True)
+    image = models.ImageField(upload_to=upload_path, null=True,blank=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
