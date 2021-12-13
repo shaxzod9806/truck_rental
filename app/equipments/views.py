@@ -38,7 +38,7 @@ class BrandAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(request_body=BrandSerializer, parser_classes=parser_classes,
                          manual_parameters=[param_config])
     def post(self, request):
-        serializer = BrandSerializer(data=request.data)
+        serializer = BrandSerializer(data=request.data, many=False, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -56,7 +56,7 @@ class BrandAPI(APIView, PaginationHandlerMixin):
     def put(self, request):
         brand_id = request.data["brand_id"]
         brand = Brand.objects.get(id=int(brand_id))
-        serializer = BrandSerializer(brand, many=False, data=request.data)
+        serializer = BrandSerializer(brand, many=False, data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -81,7 +81,7 @@ class BrandAPI(APIView, PaginationHandlerMixin):
         brand = Brand.objects.all()
         page = self.paginate_queryset(brand)
 
-        serializer = BrandSerializer(page, many=True)
+        serializer = BrandSerializer(page, many=True, context={"request": request})
         if page is not None:
             serializer = self.get_paginated_response(BrandSerializer(page, many=True).data)
         else:
@@ -108,7 +108,7 @@ class SingleBrand(APIView):
     def get(self, request, pk):
         try:
             brand = Brand.objects.get(id=pk)
-            serializer = BrandSerializer(brand, many=False)
+            serializer = BrandSerializer(brand, many=False, context={"request": request})
             return Response(serializer.data)
         except:
             return Response({'detail': 'Brand does not exist'})
@@ -130,7 +130,9 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(request_body=CategorySerializer, parser_classes=parser_classes,
                          manual_parameters=[param_config])
     def post(self, request):
-        serializer = CategorySerializer(data=request.data)
+
+        # serializer = CategorySerializer(data=request.data)
+        serializer = CategorySerializer(data=request.data, many=False, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -148,7 +150,7 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
     def put(self, request):
         cat_id = request.data["cat_id"]
         category = Category.objects.get(id=int(cat_id))
-        serializer = CategorySerializer(category, many=False, data=request.data)
+        serializer = CategorySerializer(category, many=False, data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -177,25 +179,33 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
         page = self.paginate_queryset(category)
         lang = request.GET.get("lang")
 
-        serializer = CategorySerializer(page, many=True)
+        serializer = CategorySerializer(page, many=True, context={"request": request})
         if page is not None:
             if lang == "uz":
-                serializer = self.get_paginated_response(CategorySerializerUz(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    CategorySerializerUz(page, many=True, context={"request": request}).data)
             elif lang == "ru":
-                serializer = self.get_paginated_response(CategorySerializerRu(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    CategorySerializerRu(page, many=True, context={"request": request}).data)
             elif lang == "en":
-                serializer = self.get_paginated_response(CategorySerializerEn(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    CategorySerializerEn(page, many=True, context={"request": request}).data)
             else:
-                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    self.serializer_class(page, many=True, context={"request": request}).data)
         else:
             if lang == "uz":
-                serializer = self.get_paginated_response(CategorySerializerUz(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    CategorySerializerUz(page, many=True, context={"request": request}).data)
             elif lang == "ru":
-                serializer = self.get_paginated_response(CategorySerializerRu(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    CategorySerializerRu(page, many=True, context={"request": request}).data)
             elif lang == "en":
-                serializer = self.get_paginated_response(CategorySerializerEn(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    CategorySerializerEn(page, many=True, context={"request": request}).data)
             else:
-                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    self.serializer_class(page, many=True, context={"request": request}).data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -212,7 +222,7 @@ class SingleCategory(APIView):
     def get(self, request, pk):
         try:
             category = Category.objects.get(id=pk)
-            serializer = CategorySerializer(category, many=False)
+            serializer = CategorySerializer(category, many=False, context={"request": request})
             return Response(serializer.data)
         except:
             return Response({"detail": "category does not exist"})
@@ -233,7 +243,7 @@ class SubCatApi(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(request_body=SubCatSerializer, parser_classes=parser_classes,
                          manual_parameters=[param_config])
     def post(self, request):
-        serializer = SubCatSerializer(data=request.data)
+        serializer = SubCatSerializer(data=request.data, many=False, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -249,7 +259,7 @@ class SubCatApi(APIView, PaginationHandlerMixin):
     def put(self, request):
         sub_cat_id = request.data["sub_cat_id"]
         sub_category = SubCategory.objects.get(id=int(sub_cat_id))
-        serializer = SubCatSerializer(sub_category, many=False, data=request.data)
+        serializer = SubCatSerializer(sub_category, data=request.data, many=False, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -280,25 +290,33 @@ class SubCatApi(APIView, PaginationHandlerMixin):
         page = self.paginate_queryset(sub_category)
         lang = request.GET.get("lang")
 
-        serializer = SubCatSerializer(page, many=True)
+        serializer = SubCatSerializer(page, many=True, context={"request": request})
         if page is not None:
             if lang == "uz":
-                serializer = self.get_paginated_response(SubCatSerializerUz(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    SubCatSerializerUz(page, many=True, context={"request": request}).data)
             elif lang == "ru":
-                serializer = self.get_paginated_response(SubCatSerializerRu(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    SubCatSerializerRu(page, many=True, context={"request": request}).data)
             elif lang == "en":
-                serializer = self.get_paginated_response(SubCatSerializerEn(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    SubCatSerializerEn(page, many=True, context={"request": request}).data)
             else:
-                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    self.serializer_class(page, many=True, context={"request": request}).data)
         else:
             if lang == "uz":
-                serializer = self.get_paginated_response(SubCatSerializerUz(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    SubCatSerializerUz(page, many=True, context={"request": request}).data)
             elif lang == "ru":
-                serializer = self.get_paginated_response(SubCatSerializerRu(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    SubCatSerializerRu(page, many=True, context={"request": request}).data)
             elif lang == "en":
-                serializer = self.get_paginated_response(SubCatSerializerEn(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    SubCatSerializerEn(page, many=True, context={"request": request}).data)
             else:
-                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data,
+                                                         context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -312,7 +330,7 @@ class SingleSubCategory(APIView):
     def get(self, request, pk):
         try:
             sub_category = SubCategory.objects.get(id=pk)
-            serializer = SubCatSerializer(sub_category, many=False)
+            serializer = SubCatSerializer(sub_category, many=False, context={"request": request})
             return Response(serializer.data)
         except:
             return Response({"detail": "category does not exist"})
@@ -337,7 +355,7 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[param_config], request_body=EquipmentsSerializer,
                          parser_classes=parser_classes)
     def post(self, request):
-        serializer = EquipmentsSerializer(data=request.data)
+        serializer = EquipmentsSerializer(data=request.data, many=False, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -354,7 +372,7 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
         cat_id = request.data
         ["equipment_id"]
         equipment = Equipment.objects.get(id=int(cat_id))
-        serializer = EquipmentsSerializer(equipment, many=False, data=request.data)
+        serializer = EquipmentsSerializer(equipment, many=False, data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -389,22 +407,30 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
         serializer = SubCatSerializer(equipment, many=True)
         if page is not None:
             if lang == "uz":
-                serializer = self.get_paginated_response(EquipmentsSerializerUz(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    EquipmentsSerializerUz(page, many=True, context={"request": request}).data)
             elif lang == "ru":
-                serializer = self.get_paginated_response(EquipmentsSerializerRu(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    EquipmentsSerializerRu(page, many=True, context={"request": request}).data)
             elif lang == "en":
-                serializer = self.get_paginated_response(EquipmentsSerializerEn(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    EquipmentsSerializerEn(page, many=True, context={"request": request}).data)
             else:
-                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    self.serializer_class(page, many=True, context={"request": request}).data)
         else:
             if lang == "uz":
-                serializer = self.get_paginated_response(EquipmentsSerializerUz(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    EquipmentsSerializerUz(page, many=True, context={"request": request}).data)
             elif lang == "ru":
-                serializer = self.get_paginated_response(EquipmentsSerializerRu(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    EquipmentsSerializerRu(page, many=True, context={"request": request}).data)
             elif lang == "en":
-                serializer = self.get_paginated_response(EquipmentsSerializerEn(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    EquipmentsSerializerEn(page, many=True, context={"request": request}).data)
             else:
-                serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
+                serializer = self.get_paginated_response(
+                    self.serializer_class(page, many=True, context={"request": request}).data)
         return Response(serializer.data, status=status.HTTP_200_OK)
         # return Response(serializer.data, {'filter': filter}, status=status.HTTP_200_OK)
 
@@ -419,7 +445,7 @@ class SingleEquipment(APIView):
     def get(self, request, pk):
         try:
             equipment = Equipment.objects.get(id=pk)
-            serializer = SubCatSerializer(equipment, many=False)
+            serializer = SubCatSerializer(equipment, many=False, context={"request": request})
             return Response(serializer.data)
         except:
             return Response({"detail": "Equipment does not exist"})
