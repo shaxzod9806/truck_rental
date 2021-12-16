@@ -214,6 +214,11 @@ class EquipmentsSerializerUz(serializers.ModelSerializer):
     name = serializers.SerializerMethodField('name_uz')
     category_name = serializers.SerializerMethodField('get_category_name')
     sub_category_name = serializers.SerializerMethodField('get_sub_category_name')
+    description = serializers.SerializerMethodField('description_uz')
+
+    def description_en(self, obj):
+        description = obj.description_uz
+        return description
 
     def get_category_name(self, obj):
         cat = Category.objects.get(id=obj.category.id)
@@ -229,7 +234,8 @@ class EquipmentsSerializerUz(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['id', 'name', 'image', 'category', 'category_name', 'sub_category', 'sub_category_name', 'created_at',
+        fields = ['id', 'name', 'description', 'image', 'category', 'category_name', 'sub_category',
+                  'sub_category_name', 'created_at',
                   'updated_at',
                   'created_by',
                   'updated_by']
@@ -239,6 +245,11 @@ class EquipmentsSerializerRu(serializers.ModelSerializer):
     name = serializers.SerializerMethodField('name_ru')
     category_name = serializers.SerializerMethodField('get_category_name')
     sub_category_name = serializers.SerializerMethodField('get_sub_category_name')
+    description = serializers.SerializerMethodField('description_ru')
+
+    def description_ru(self, obj):
+        description = obj.description_en
+        return description
 
     def get_category_name(self, obj):
         cat = Category.objects.get(id=obj.category.id)
@@ -254,7 +265,7 @@ class EquipmentsSerializerRu(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['id', 'name', 'image', 'category',
+        fields = ['id', 'name', 'description', 'image', 'category',
                   'category_name', 'sub_category', 'sub_category_name', 'created_at', 'updated_at', 'created_by',
                   'updated_by']
 
@@ -263,6 +274,11 @@ class EquipmentsSerializerEn(serializers.ModelSerializer):
     name = serializers.SerializerMethodField('name_en')
     category_name = serializers.SerializerMethodField('get_category_name')
     sub_category_name = serializers.SerializerMethodField('get_sub_category_name')
+    description = serializers.SerializerMethodField('description_en')
+
+    def description_en(self, obj):
+        description = obj.description_en
+        return description
 
     def get_category_name(self, obj):
         cat = Category.objects.get(id=obj.category.id)
@@ -278,7 +294,8 @@ class EquipmentsSerializerEn(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['id', 'name', 'image', 'category_name', 'category', 'sub_category', 'sub_category_name', 'created_at',
+        fields = ['id', 'name', 'description', 'image', 'category_name', 'category', 'sub_category',
+                  'sub_category_name', 'created_at',
                   'updated_at', 'created_by',
                   'updated_by']
 

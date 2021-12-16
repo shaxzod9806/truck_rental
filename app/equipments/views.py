@@ -211,9 +211,10 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
 
 class SingleCategory(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
-    param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
-                                     description='enter access token with Bearer word for example: Bearer token',
-                                     type=openapi.TYPE_STRING)
+    param_config = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING)
     cat_id = openapi.Parameter('cat_id', in_=openapi.IN_BODY,
                                description='enter cat_id',
                                type=openapi.TYPE_INTEGER)
@@ -232,7 +233,7 @@ class SubCatApi(APIView, PaginationHandlerMixin):
     pagination_class = BasicPagination
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
-    serializer_class = SubCatSerializer
+    serializer_class = SubCatSerializergit
     filter_backends = [filters.SearchFilter]
     search_fields = ['name_uz', 'name_ru', 'name_en']
 
