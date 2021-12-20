@@ -10,7 +10,7 @@ class BrandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Brand
-        fields = '__all__'
+        fields = ('id', 'brand_name', 'brand_image', 'created_at', 'updated_at')
 
         def get_photo_url(self, obj):
             request = self.context.get('request')
@@ -187,6 +187,11 @@ class EquipmentsSerializer(serializers.ModelSerializer):
     photo_url = serializers.SerializerMethodField('get_photo_url')
     category_name = serializers.SerializerMethodField('get_category_name')
     sub_category_name = serializers.SerializerMethodField('get_sub_category_name')
+    brand_name = serializers.SerializerMethodField('get_brand_name')
+
+    def get_brand_name(self, obj):
+        brand = Brand.objects.get(id=obj.brand.id)
+        return brand.brand_name
 
     def get_category_name(self, obj):
         cat = Category.objects.get(id=obj.category.id)
@@ -204,10 +209,9 @@ class EquipmentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipment
         fields = ['id', 'name_uz', 'name_ru', 'name_en', 'image', 'photo_url',
-                  'brand',
-                  'category_name',
-                  'category', 'sub_category_name', 'sub_category', 'created_at', 'updated_at',
-                  'created_by', 'updated_by']
+                  'brand', 'brand_name',
+                  'category_name', 'category', 'sub_category_name', 'sub_category',
+                  'created_at', 'updated_at', 'created_by', 'updated_by']
 
 
 class EquipmentsSerializerUz(serializers.ModelSerializer):
@@ -301,6 +305,14 @@ class EquipmentsSerializerEn(serializers.ModelSerializer):
 
 
 class AdditionsSerializer(serializers.ModelSerializer):
+    equipment_name = serializers.SerializerMethodField('get_equipment_name')
+
+    def get_equipment_name(self, obj):
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        return equipment.name_ru
+
     class Meta:
         model = AdditionalProps
-        fields = "__all__"
+
+        fields = ("id", "name_uz", "name_ru", "name_en", 'value_uz', 'value_ru', 'value_en',
+                  'equipment', 'equipment_name', 'created_at', 'updated_at')

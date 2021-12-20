@@ -338,8 +338,8 @@ class SingleSubCategory(APIView):
 
 
 class EquipmentAPI(APIView, PaginationHandlerMixin):
-    pagination_class = BasicPagination  # 1
-    serializer_class = EquipmentsSerializer  # 2
+    pagination_class = BasicPagination
+    serializer_class = EquipmentsSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
 
@@ -499,7 +499,31 @@ class AdditionsApi(APIView):
             return Response({"detail": "addition does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+#
 class SingleAddition(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
+                                     description='enter access token with Bearer word for example: Bearer token',
+                                     type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[param_config])
+    def get(self, request, pk):
+
+        """
+
+        :param request:
+        :param pk:
+        :return:
+        """
+        try:
+            addition = AdditionalProps.objects.get(id=pk)
+            serializer = AdditionsSerializer(addition, many=False)
+            return Response(serializer.data)
+        except:
+            return Response({"detail": "Addition does not exist"})
+
+
+class SingleEquipmentAdditions(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
@@ -514,8 +538,11 @@ class SingleAddition(APIView):
         :return:
         """
         try:
-            addition = AdditionalProps.objects.get(id=pk)
-            serializer = AdditionsSerializer(addition, many=False)
+            equipment = Equipment.objects.get(id=pk)
+            additions = AdditionalProps.objects.filter(equipment=equipment)
+            serializer = AdditionsSerializer(additions, many=True)
             return Response(serializer.data)
         except:
-            return Response({"detail": "Addition does not exist"})
+            return Response({"detail": "Additions does not exist"})
+
+
