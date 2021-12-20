@@ -233,7 +233,7 @@ class SubCatApi(APIView, PaginationHandlerMixin):
     pagination_class = BasicPagination
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
-    serializer_class = SubCatSerializergit
+    serializer_class = SubCatSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name_uz', 'name_ru', 'name_en']
 
