@@ -11,4 +11,5 @@ urlpatterns = [
     path('equipment/<int:pk>', views.SingleEquipment.as_view(), name="single_equipment"),
     path('additions/', views.AdditionsApi.as_view(), name="additions"),
     path('additions/<int:pk>', views.SingleAddition.as_view(), name="addition_single"),
+    path('additions_of_equipment/<int:pk>', views.SingleEquipmentAdditions.as_view(), name="additions_equipment_single"),
 ]

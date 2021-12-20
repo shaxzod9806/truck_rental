@@ -12,6 +12,9 @@ class Brand(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.brand_name
+
 
 class Category(models.Model):
     name_uz = models.CharField(max_length=255)
@@ -82,6 +85,9 @@ class Equipment(models.Model):
                                    related_query_name='equipment_updated'
                                    )
 
+    def __str__(self):
+        return self.name_ru
+
 
 class AdditionalProps(models.Model):
     name_uz = models.CharField(max_length=255)
@@ -93,3 +99,6 @@ class AdditionalProps(models.Model):
     equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name_ru
