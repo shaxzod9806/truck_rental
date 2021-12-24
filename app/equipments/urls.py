@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+
 urlpatterns = [
     path('brands/', views.BrandAPI.as_view(), name="equipment_brand"),
     path('brands/<int:pk>', views.SingleCategory.as_view(), name="single_brand"),
@@ -11,5 +12,6 @@ urlpatterns = [
     path('equipment/<int:pk>', views.SingleEquipment.as_view(), name="single_equipment"),
     path('additions/', views.AdditionsApi.as_view(), name="additions"),
     path('additions/<int:pk>', views.SingleAddition.as_view(), name="addition_single"),
-    path('additions_of_equipment/<int:pk>', views.SingleEquipmentAdditions.as_view(), name="additions_equipment_single"),
+    path('additions_of_equipment/<int:pk>', views.SingleEquipmentAdditions.as_view(),
+         name="additions_equipment_single"),
 ]

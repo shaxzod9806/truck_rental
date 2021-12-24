@@ -544,5 +544,3 @@ class SingleEquipmentAdditions(APIView):
             return Response(serializer.data)
         except:
             return Response({"detail": "Additions does not exist"})
-
-
