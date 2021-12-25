@@ -90,21 +90,15 @@ class BrandAPI(APIView, PaginationHandlerMixin):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class SingleBrand(APIView):
+class SingleBrandAPI(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
-    param_config = openapi.Parameter(
-        'Authorization',
-        in_=openapi.IN_HEADER,
-        description='enter access token with Bearer word for example: Bearer token',
-        type=openapi.TYPE_STRING
-    )
-    brand_id = openapi.Parameter(
-        'brand_id', in_=openapi.IN_BODY,
-        description='enter brand_id',
-        type=openapi.TYPE_INTEGER
-    )
+    serializer_class = BrandSerializer
+    parser_classes = (MultiPartParser, FormParser)
 
-    @swagger_auto_schema(manual_parametrs=[param_config])
+    token = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
+                              description='enter access token', type=openapi.TYPE_STRING, )
+
+    @swagger_auto_schema(manual_parameters=[token], parser_classes=parser_classes)
     def get(self, request, pk):
         try:
             brand = Brand.objects.get(id=pk)
@@ -370,8 +364,7 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(request_body=EquipmentsSerializer, parser_classes=parser_classes,
                          manual_parameters=[equipment_id, param_config])
     def put(self, request):
-        cat_id = request.data
-        ["equipment_id"]
+        cat_id = request.data["equipment_id"]
         equipment = Equipment.objects.get(id=int(cat_id))
         serializer = EquipmentsSerializer(equipment, many=False, data=request.data, context={"request": request})
         if serializer.is_valid():
@@ -446,7 +439,7 @@ class SingleEquipment(APIView):
     def get(self, request, pk):
         try:
             equipment = Equipment.objects.get(id=pk)
-            serializer = SubCatSerializer(equipment, many=False, context={"request": request})
+            serializer = EquipmentsSerializer(equipment, many=False, context={"request": request})
             return Response(serializer.data)
         except:
             return Response({"detail": "Equipment does not exist"})
