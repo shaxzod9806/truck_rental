@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'customer'
 
 ]
+
+
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
