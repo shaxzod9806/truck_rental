@@ -70,7 +70,7 @@ class Equipment(models.Model):
     description_uz = models.TextField(blank=True)
     description_ru = models.TextField(blank=True)
     description_en = models.TextField(blank=True)
-    image = models.ImageField(upload_to=upload_path)
+    image = models.ImageField(upload_to=upload_path,null=True)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.PROTECT, null=True)
@@ -96,7 +96,7 @@ class AdditionalProps(models.Model):
     value_uz = models.CharField(max_length=255)
     value_ru = models.CharField(max_length=255)
     value_en = models.CharField(max_length=255)
-    equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT)
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
