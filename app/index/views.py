@@ -11,6 +11,9 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
+import random
+from utilities.models import SMS
+from utilities.sms import send_sms
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -47,20 +50,24 @@ class UserRegister(CreateAPIView):
         ))
     def post(self, request):
         data = request.data
-        try:
-            user = User.objects.create(
-                first_name=data["first_name"],
-                username=data["username"],
-                password=make_password(data["password"]),
-                user_type=data["user_type"]
-
-
-            )
-            serializer = UserSerializer(user, many=False)
-
-            return Response(serializer.data)
-        except:
-            message = {'detail': "User with this username already exist"}
-            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+        random_number = random.randrange(10000, 99999)
+        # try:
+        user = User.objects.create(
+            first_name=data["first_name"],
+            username=data["username"],
+            password=make_password(data["password"]),
+            user_type=data["user_type"],
+            is_active=False,
+            activation_code=random_number
+        )
+        serializer = UserSerializer(user, many=False)
+        sms_itself = SMS.objects.create(phone_number=user.username, text=random_number)
+        if not user.is_active:
+            send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
+        sms_itself.is_sent = 1
+        return Response(serializer.data)
+        # except:
+        #     message = {'detail': "User with this username already exist"}
+        #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -32,5 +32,5 @@ def send_sms(number, text, sms_id):
     return r.text
 
 
-send_sms("998931209806", "function is running", 36)
+# send_sms("998946128484", "function is running", 35)
 

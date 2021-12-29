@@ -15,4 +15,5 @@ class User(AbstractUser):
         (4, 'customer'),
     )
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, default=3)
+    activation_code = models.IntegerField(null=True, blank=True)
 
