@@ -1,0 +1,39 @@
+stages:
+  - drop
+  - build 
+
+variables:
+  DIR: "/tmp/motochas_app"
+  SSH_CONNECT: "root@172.17.0.1"
+
+Drop:
+  stage: drop
+  script:
+    - ssh ${SSH_CONNECT} "docker stop moto-backend || true && docker rm moto-backend || true && docker rmi motochas_app:latest || true"
+    - ssh ${SSH_CONNECT} "mkdir -p ${DIR}"
+  only:
+    - main
+  tags:
+    - "motochas-app"
+
+Build and start docker images:
+  stage: build
+  script:
+    - scp -r ./* ${SSH_CONNECT}:${DIR}
+    - ssh ${SSH_CONNECT} "cd ${DIR} && docker build -t motochas_app:latest ."
+    - ssh ${SSH_CONNECT} 
+        "docker run -d 
+        --restart=always
+        --name=moto-backend 
+        -v moto-static-data:/vol/web 
+        --network=motochas_moto-network
+        -e DB_HOST=moto-db 
+        -e DB_NAME=moto-database 
+        -e DB_USER=postgres 
+        -e DB_PASS=kElqLzHB 
+        -e ALLOWED_HOSTS=* 
+        motochas_app:latest"
+  only:
+    - main
+  tags:
+    - "motochas-app"

@@ -47,7 +47,7 @@ class BrandAPI(APIView, PaginationHandlerMixin):
 
     brand_id = openapi.Parameter(
         'brand_id', in_=openapi.IN_FORM,
-        description='enter category ID',
+        description='enter brand ID',
         type=openapi.TYPE_INTEGER
     )
 
@@ -317,9 +317,10 @@ class SubCatApi(APIView, PaginationHandlerMixin):
 
 class SingleSubCategory(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
-    param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
-                                     description='enter access token with Bearer word for example: Bearer token',
-                                     type=openapi.TYPE_STRING)
+    param_config = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING)
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request, pk):
@@ -328,7 +329,7 @@ class SingleSubCategory(APIView):
             serializer = SubCatSerializer(sub_category, many=False, context={"request": request})
             return Response(serializer.data)
         except:
-            return Response({"detail": "category does not exist"})
+            return Response({"detail": "sub_category does not exist"})
 
 
 class EquipmentAPI(APIView, PaginationHandlerMixin):
@@ -336,16 +337,16 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
     serializer_class = EquipmentsSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
-
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('id', 'name', 'update_ts')
     ordering = ('id',)
 
     # search_fields = ['name', 'name_uz', 'name_ru', 'name_en']
 
-    param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
-                                     description='enter access token with Bearer word for example: Bearer token',
-                                     type=openapi.TYPE_STRING)
+    param_config = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING)
 
     @swagger_auto_schema(manual_parameters=[param_config], request_body=EquipmentsSerializer,
                          parser_classes=parser_classes)
@@ -431,7 +432,8 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
 
 class SingleEquipment(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
-    param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
+    param_config = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
 
