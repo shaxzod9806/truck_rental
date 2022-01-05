@@ -17,7 +17,7 @@ from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 
 
 class UserProfile(APIView):
-    permission_classes = [IsAuthenticated, IsRenter]
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
     param_config = openapi.Parameter(
