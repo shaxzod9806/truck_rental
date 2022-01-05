@@ -71,3 +71,35 @@ class UserRegister(CreateAPIView):
         #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
+class VerifyUser(APIView):
+
+    user_id = openapi.Parameter(
+        'user_id',
+        in_=openapi.IN_QUERY,
+        description='Enter user id to verify the user ',
+        type=openapi.TYPE_INTEGER
+    )
+    verification_code = openapi.Parameter(
+        'verification_code',
+        in_=openapi.IN_QUERY,
+        description='Enter verification_code to verify the user ',
+        type=openapi.TYPE_INTEGER
+    )
+
+    @swagger_auto_schema(manual_parameters=[user_id, verification_code])
+    def post(self, request):
+        user_id = request.GET.get("user_id")
+        verification_code = request.GET.get("verification_code")
+        user_itself = User.objects.get(id=user_id)
+        if user_itself.is_active:
+            return Response("User is already activated")
+        if int(verification_code) == int(user_itself.activation_code):
+            user_itself.is_active = True
+            user_itself.save()
+            return Response("User is successfully activated")
+        else:
+            return Response("Activation code is wrong")
+
+
+
+

@@ -3,7 +3,7 @@ import json
 
 
 def send_sms(number, text, sms_id):
-
+    sms_text = f"Your verification code: {text}"
     """
 
     :param number: str; enter number without "+" sign, example: 998941234567
@@ -23,7 +23,7 @@ def send_sms(number, text, sms_id):
         "sms":{
             "originator": "3700",
             "content": {
-            "text": f"{text}"
+            "text": sms_text
                 }
             }
         }]
