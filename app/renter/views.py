@@ -1,7 +1,8 @@
 from django.shortcuts import render
+from .models import RenterProduct
 # Create your views here.
 
-from .serializers import UserSerializer, ProfileSerializer, FilesSerializer
+from .serializers import UserSerializer, ProfileSerializer, FilesSerializer, RenterProductSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -14,6 +15,9 @@ from rest_framework.generics import CreateAPIView
 from index.models import User
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
+from utilities.mapping import find_near_equipment
+from utilities.models import SMS
+from utilities.sms import send_sms
 
 
 class UserProfile(APIView):
@@ -27,6 +31,14 @@ class UserProfile(APIView):
 
     @swagger_auto_schema(manual_parameters=[param_config], )
     def get(self, request):
+        near_equipment = find_near_equipment(41.26627926553408, 69.1718476870863)
+        # 1. notify the owner of equipment
+        renter = Profile.objects.get(id=near_equipment["renter_id"])
+        renter_phone = renter.user.username
+        sms_itself = SMS.objects.create(phone_number=renter_phone, text="You have new order, did you confirm it?")
+        send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
+        sms_itself.is_sent = 1
+
         user = request.user
         profile = Profile.objects.get(user=user.id)
         user_serializer = UserSerializer(user, many=False)

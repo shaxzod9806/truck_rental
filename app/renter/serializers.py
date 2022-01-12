@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from index.models import User
-from .models import Profile, Files
+from .models import Profile, Files, RenterProduct
 from rest_framework_simplejwt.tokens import AccessToken
 
 
@@ -26,3 +26,10 @@ class FilesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Files
         fields = ('files', 'profile')
+
+
+class RenterProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RenterProduct
+        fields = "__all__"
+
