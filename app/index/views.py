@@ -103,10 +103,6 @@ class VerifyUser(APIView):
 
 
 class ResetPhoneNumber(APIView):
-    # phone_number = openapi.Parameter('phone_number', in_=openapi.IN_FORM,
-    #                                  description='enter phone_number',
-    #                                  type=openapi.TYPE_STRING)
-
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
@@ -115,32 +111,20 @@ class ResetPhoneNumber(APIView):
     ))
     def post(self, request):
         random_number = random.randrange(10000, 99999)
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         phone_number = request.data['phone_number']
         print(phone_number)
         user = User.objects.get(username=phone_number)
-
-        print('==============================================')
-        print(user)
-        print(user.id)
-
-        print('==============================================')
-
         sms_itself = SMS.objects.create(
             phone_number=user.username, text=random_number
         )
         if user.is_active:
             send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
-            print('********************************send_sms')
             sms_itself.is_sent = 1
             sms_itself.sms_type = 2
             user.activation_code = random_number
             user.save()
-            # print(user.set_activation_code(random_number))
             print(user.activation_code)
-            # user_itself.activation_code =
             user_serializer = UserSerializer(user, many=False)
-            print(user_serializer.data)
             print(user.id)
             return Response(
                 f"sms is send to  id: {user.id}    PN:{sms_itself.phone_number}     type:{user.user_type}      successfully"

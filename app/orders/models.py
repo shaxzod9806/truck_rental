@@ -5,13 +5,13 @@ from equipments.models import Equipment
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(User, on_delete=models.PROTECT, related_name="customer")
-    renter = models.ForeignKey(User, on_delete=models.PROTECT, related_name="renter")
-    equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    lat = models.CharField(max_length=255)
-    long = models.CharField(max_length=255)
+    customer = models.ForeignKey(User, on_delete=models.PROTECT, related_name="customer",null=True)
+    renter = models.ForeignKey(User, on_delete=models.PROTECT, related_name="renter",null=True)
+    equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT,null=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True)
+    lat = models.CharField(max_length=255,null=True)
+    long = models.CharField(max_length=255,null=True)
     order_price = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
