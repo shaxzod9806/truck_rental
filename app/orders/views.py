@@ -9,9 +9,17 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.response import Response
 from rest_framework import status
-
-
+from utilities.mapping import find_near_equipment
+from datetime import datetime
+from equipments.models import Equipment
+from renter.models import Profile as renter_profile
+from renter.models import RenterProduct
+from datetime import timedelta
+from utilities.models import SMS
+from utilities.sms import send_sms
+from utilities.mapping import send_confirm_sms
 # Create your views here.
+
 
 class OrderAPIView(APIView):
     permission_class = [IsAuthenticated]
@@ -28,9 +36,24 @@ class OrderAPIView(APIView):
     @swagger_auto_schema(request_body=OrderSerializer, parser_classes=parser_classes,
                          manual_parameters=[param_config])
     def post(self, request):
+
         serializer = OrderSerializer(data=request.data, many=False)
         if serializer.is_valid():
             serializer.save()
+            data = serializer.data
+            near_equipment = find_near_equipment(float(data["lat"]), float(data["long"]))
+            checking_order = OrderChecking.objects.create(
+                renter=renter_profile.objects.get(id=near_equipment["renter_id"]).user,
+                equipment=RenterProduct.objects.get(id=near_equipment["product_id"]),
+                order=Order.objects.get(id=data["id"]),
+                confirmed=1,
+                checking_end=datetime.today()
+            )
+            checking_order.checking_end = checking_order.checking_start + timedelta(minutes=15)
+            checking_order.save()
+            # Notify the user
+            renter = renter_profile.objects.get(id=near_equipment["renter_id"])
+            send_confirm_sms(renter, SMS)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

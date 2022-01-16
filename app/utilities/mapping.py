@@ -51,5 +51,10 @@ def find_near_equipment(user_lat, user_long):
 #        {'product_id': 4, 'renter_id': 7, 'km': 6.237550424552983}]
 
 
-
+def send_confirm_sms(renter, sms):
+    renter_phone = renter.user.username
+    sms_itself = sms.objects.create(phone_number=renter_phone, text="You have new order, did you confirm it?")
+    send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
+    sms_itself.is_sent = 1
+    sms_itself.save()
 
