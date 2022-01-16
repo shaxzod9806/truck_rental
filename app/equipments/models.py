@@ -70,6 +70,7 @@ class Equipment(models.Model):
     description_uz = models.TextField(blank=True)
     description_ru = models.TextField(blank=True)
     description_en = models.TextField(blank=True)
+    hourly_price = models.FloatField(null=True)
     image = models.ImageField(upload_to=upload_path,null=True)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True)

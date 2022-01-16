@@ -23,7 +23,6 @@ class Files(models.Model):
 
 class RenterProduct(models.Model):
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
-    hourly_price = models.FloatField()
     renter_description = models.TextField(blank=True)
     latitude = models.FloatField()
     longitude = models.FloatField()
@@ -32,5 +31,14 @@ class RenterProduct(models.Model):
 
     def __str__(self):
         return self.equipment.name_uz
+
+
+class BusyTimes(models.Model):
+    #  busy_start should be greater than busy_end
+    busy_start = models.DateTimeField()
+    busy_end = models.DateTimeField()
+    product = models.ForeignKey(RenterProduct, on_delete=models.CASCADE)
+
+
 
 
