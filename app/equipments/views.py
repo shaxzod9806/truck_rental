@@ -113,7 +113,6 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
     permission_classes = [IsAuthenticated, IsAdminUser]
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = CategorySerializer
-
     param_config = openapi.Parameter(
         'Authorization',
         in_=openapi.IN_HEADER,

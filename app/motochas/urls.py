@@ -20,20 +20,22 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.conf import settings
 from django.conf.urls.static import static
+
 schema_view = get_schema_view(
-   openapi.Info(
-      title="Motochas API",
-      default_version='v1',
-      description="Motochas project APIs collection",
-      terms_of_service="/",
-      contact=openapi.Contact(email="aabdurazzoqov1996@gmail.com"),
-   ),
-   public=True,
-   permission_classes=(permissions.AllowAny,),
+    openapi.Info(
+        title="Motochas API",
+        default_version='v1',
+        description="Motochas project APIs collection",
+        terms_of_service="/",
+        contact=openapi.Contact(email="aabdurazzoqov1996@gmail.com"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/renter/', include('renter.urls')),
+    path('api/customer/', include('customer.urls')),
     path('api/index/', include('index.urls')),
     path('api/equipments/', include('equipments.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

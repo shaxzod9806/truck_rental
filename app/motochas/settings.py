@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'utilities',
-    'customer'
+    'customer',
+
 
 ]
 

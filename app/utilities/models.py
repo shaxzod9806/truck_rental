@@ -1,6 +1,7 @@
 from django.db import models
 
-# Create your models here.
+# Create your models here
+# .
 SMS_CHOICES = (
     (1, 'create_user'),
     (2, 'reset_password'),

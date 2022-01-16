@@ -31,20 +31,26 @@ class UserProfile(APIView):
 
     @swagger_auto_schema(manual_parameters=[param_config], )
     def get(self, request):
-        near_equipment = find_near_equipment(41.26627926553408, 69.1718476870863)
-        # 1. notify the owner of equipment
-        renter = Profile.objects.get(id=near_equipment["renter_id"])
-        renter_phone = renter.user.username
-        sms_itself = SMS.objects.create(phone_number=renter_phone, text="You have new order, did you confirm it?")
-        send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
-        sms_itself.is_sent = 1
-
+        # near_equipment = find_near_equipment(41.26627926553408, 69.1718476870863)
+        # # 1. notify the owner of equipment
+        # renter = Profile.objects.get(id=near_equipment["renter_id"])
+        # renter_phone = renter.user.username
+        # sms_itself = SMS.objects.create(phone_number=renter_phone, text="You have new order, did you confirm it?")
+        # send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
+        # sms_itself.is_sent = 1
+        print('=============================================================')
         user = request.user
-        profile = Profile.objects.get(user=user.id)
-        user_serializer = UserSerializer(user, many=False)
-        profile_serializer = ProfileSerializer(profile, many=False)
-        data = {"user": user_serializer.data, "user_profile": profile_serializer.data}
-        return Response(data)
+        print(user)
+        profile = Profile.objects.all()
+        print(profile)
+        # profile = Profile.objects.get(user=user.id)
+        user_serializer = UserSerializer(user, many=True)
+        print(user)
+        profile_serializer = ProfileSerializer(profile, many=True)
+        print(profile_serializer)
+        # data = {"user": user_serializer.data, "user_profile": profile_serializer.data}
+        print(profile_serializer.data)
+        return Response(profile_serializer.data)
 
     @swagger_auto_schema(request_body=ProfileSerializer, manual_parameters=[param_config])
     def put(self, request):
@@ -66,7 +72,7 @@ class ProfileRegister(CreateAPIView):
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
+            # 'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'organization': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'office_address': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
@@ -75,19 +81,16 @@ class ProfileRegister(CreateAPIView):
     ))
     def post(self, request):
         data = request.data
-        try:
-            user = User.objects.get(id=data["user_id"])
-            profile = Profile.objects.create(
-                phone_number=data["phone_number"],
-                organization=data["organization"],
-                office_address=data["office_address"],
-                user=user
-            )
-            serializer = ProfileSerializer(profile, many=False)
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
-            message = {'detail': "Something went Wrong"}
-            return Response(message, status=status.HTTP_400_BAD_REQUEST)
-
-
+        # try:
+        user = User.objects.get(id=data["user_id"])
+        profile = Profile.objects.create(
+            # phone_number=data["phone_number"],
+            organization=data["organization"],
+            office_address=data["office_address"],
+            user=user
+        )
+        serializer = ProfileSerializer(profile, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    # except:
+    #     message = {'detail': "Something went Wrong"}
+#     return Response(message, status=status.HTTP_400_BAD_REQUEST)

@@ -25,7 +25,7 @@ class EquipmentFilter(django_filters.FilterSet):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    photo_url = serializers.SerializerMethodField
+    photo_url = serializers.SerializerMethodField("get_photo_url")
 
     class Meta:
         model = Category
