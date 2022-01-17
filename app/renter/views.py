@@ -1,7 +1,8 @@
 from django.shortcuts import render
+from .models import RenterProduct
 # Create your views here.
 
-from .serializers import UserSerializer, ProfileSerializer, FilesSerializer
+from .serializers import UserSerializer, ProfileSerializer, FilesSerializer, RenterProductSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -14,6 +15,9 @@ from rest_framework.generics import CreateAPIView
 from index.models import User
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
+from utilities.mapping import find_near_equipment
+from utilities.models import SMS
+from utilities.sms import send_sms
 
 
 class UserProfile(APIView):
@@ -27,12 +31,22 @@ class UserProfile(APIView):
 
     @swagger_auto_schema(manual_parameters=[param_config], )
     def get(self, request):
+        near_equipment = find_near_equipment(41.26627926553408, 69.1718476870863)
+        print(near_equipment)
+
+        # print('=============================================================')
         user = request.user
-        profile = Profile.objects.get(user=user.id)
-        user_serializer = UserSerializer(user, many=False)
-        profile_serializer = ProfileSerializer(profile, many=False)
-        data = {"user": user_serializer.data, "user_profile": profile_serializer.data}
-        return Response(data)
+        # print(user)
+        profile = Profile.objects.all()
+        # print(profile)
+        # profile = Profile.objects.get(user=user.id)
+        user_serializer = UserSerializer(user, many=True)
+        # print(user)
+        profile_serializer = ProfileSerializer(profile, many=True)
+        # print(profile_serializer)
+        # data = {"user": user_serializer.data, "user_profile": profile_serializer.data}
+        # print(profile_serializer.data)
+        return Response(profile_serializer.data)
 
     @swagger_auto_schema(request_body=ProfileSerializer, manual_parameters=[param_config])
     def put(self, request):
@@ -54,7 +68,7 @@ class ProfileRegister(CreateAPIView):
     @swagger_auto_schema(request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
+            # 'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'organization': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'office_address': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
@@ -63,19 +77,16 @@ class ProfileRegister(CreateAPIView):
     ))
     def post(self, request):
         data = request.data
-        try:
-            user = User.objects.get(id=data["user_id"])
-            profile = Profile.objects.create(
-                phone_number=data["phone_number"],
-                organization=data["organization"],
-                office_address=data["office_address"],
-                user=user
-            )
-            serializer = ProfileSerializer(profile, many=False)
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
-            message = {'detail': "Something went Wrong"}
-            return Response(message, status=status.HTTP_400_BAD_REQUEST)
-
-
+        # try:
+        user = User.objects.get(id=data["user_id"])
+        profile = Profile.objects.create(
+            # phone_number=data["phone_number"],
+            organization=data["organization"],
+            office_address=data["office_address"],
+            user=user
+        )
+        serializer = ProfileSerializer(profile, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    # except:
+    #     message = {'detail': "Something went Wrong"}
+#     return Response(message, status=status.HTTP_400_BAD_REQUEST)
