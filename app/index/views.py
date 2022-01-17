@@ -126,9 +126,8 @@ class ResetPhoneNumber(APIView):
             print(user.activation_code)
             user_serializer = UserSerializer(user, many=False)
             print(user.id)
-            return Response(
-                f"sms is send to  id: {user.id}    PN:{sms_itself.phone_number}     type:{user.user_type}      successfully"
-            )
+            user_info = {"user_id": user.id, "phone_number": sms_itself.phone_number, "user_type": user.user_type}
+            return Response(user_info)
 
         return Response('something is wrong')
 
