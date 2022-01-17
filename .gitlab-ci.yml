@@ -4,7 +4,7 @@ stages:
 
 variables:
   DIR: "/tmp/motochas_app"
-  SSH_CONNECT: "root@172.17.0.1"
+  SSH_CONNECT: "root@83.69.137.155"
 
 Drop:
   stage: drop
@@ -25,7 +25,7 @@ Build and start docker images:
         "docker run -d 
         --restart=always
         --name=moto-backend 
-        -v moto-static-data:/vol/web 
+        -v motochas_moto-static-data:/vol/web 
         --network=motochas_moto-network
         -e DB_HOST=moto-db 
         -e DB_NAME=moto-database 
@@ -33,6 +33,7 @@ Build and start docker images:
         -e DB_PASS=kElqLzHB 
         -e ALLOWED_HOSTS=* 
         motochas_app:latest"
+    - ssh ${SSH_CONNECT} "rm -rf ${DIR}"
   only:
     - main
   tags:
