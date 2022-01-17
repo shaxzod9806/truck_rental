@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'utilities',
     'customer',
     'orders',
+    'django_crontab',
+
 
 
 ]
@@ -200,3 +202,7 @@ STATIC_ROOT = '/vol/web/static'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRONJOBS = [
+    ('*/5 * * * *', 'orders.cron.my_scheduled_job')
+]
