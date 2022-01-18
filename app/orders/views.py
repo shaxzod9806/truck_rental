@@ -46,7 +46,7 @@ class OrderAPIView(APIView):
             data = serializer.data
             near_equipment = find_near_equipment(float(data["lat"]), float(data["long"]))
             checking_order = OrderChecking.objects.create(
-                renter=renter_profile.objects.get(id=near_equipment["renter_id"]).user,
+                renter=User.objects.get(id=near_equipment["renter_id"]),
                 equipment=RenterProduct.objects.get(id=near_equipment["product_id"]),
                 order=Order.objects.get(id=data["id"]),
                 confirmed=1,
@@ -125,39 +125,26 @@ class SingleOrderAPI(APIView):
             return Response({'detail': 'Order does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class OrderCancelAPI(APIView):
-#     parser_classes = (MultiPartParser, FormParser)
+class OrderCancelAPI(APIView):
+    token = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
+                              description='enter access token', type=openapi.TYPE_STRING, )
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsAuthenticated]
 
-    # @swagger_auto_schema(request_body=openapi.Schema(
-    #     type=openapi.TYPE_OBJECT,
-    #     properties={
-    #         'user_id': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-    #         'order_id': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-    #     }
-    # ))
-    # user_id = openapi.Parameter(
-    #     'user_id',
-    #     in_=openapi.IN_QUERY,
-    #     description='Enter user id to verify the user ',
-    #     type=openapi.TYPE_INTEGER
-    # )
-    # order_id = openapi.Parameter(
-    #     'order id',
-    #     in_=openapi.IN_QUERY,
-    #     description='Enter order id the user ',
-    #     type=openapi.TYPE_INTEGER
-    # )
-    #
-    # @swagger_auto_schema(manual_parameters=[user_id, order_id])
-    # def post(self, request):
-    #     order_id = request.GET.get('order_id')
-    #     user_id = request.GET.get('user_id')
-    #     print(order_id)
-    #     # order_id = data["order_id"]
-    #     # user_id = data["user_id"]
-    #     order_Checking_itself = OrderChecking.objects.get(order_id=order_id)
-    #     print(order_Checking_itself)
-    #     order_Checking_itself.confirmed = 2
-    #     order_Checking_itself.save()
-    #     print(order_Checking_itself)
-    #     return Response("order cancel chenged")
+    order_id = openapi.Parameter(
+        'order_id',
+        in_=openapi.IN_QUERY,
+        description='Enter order id ',
+        type=openapi.TYPE_INTEGER
+    )
+
+    @swagger_auto_schema(manual_parameters=[order_id, token])
+    def post(self, request):
+        order_id = request.GET.get('order_id')
+        print(order_id)
+        order_itself = Order.objects.get(id=order_id)
+        if not order_itself.renter:
+            order_itself.user_cancel = True
+            return Response({"details": "order canceled"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"details": "there is already connected renter"}, status=status.HTTP_400_BAD_REQUEST)
