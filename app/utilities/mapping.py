@@ -31,6 +31,7 @@ def find_min(kilometers):
 
 def find_near_equipment(user_lat, user_long):
     renter_products = RenterProduct.objects.all().values()
+    print(renter_products)
     kms = []
     for equipment in renter_products:
         lat = equipment["latitude"]
@@ -40,9 +41,12 @@ def find_near_equipment(user_lat, user_long):
         product_id = equipment["id"]
         mini_dict = {"product_id": product_id, "renter_id": renter_id, "km": km}
         kms.append(mini_dict)
-    minimum = find_min(kms)
-    return minimum
 
+    if len(kms) > 1:
+        minimum = find_min(kms)
+        return minimum
+    else:
+        return kms[0]
 # user_lat = 41.31090537318465
 # user_long = 69.28148097265912
 # kms = [{'product_id': 1, 'renter_id': 1, 'km': 7.437136503158664},

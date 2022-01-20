@@ -14,8 +14,10 @@ class Order(models.Model):
     lat = models.CharField(max_length=255,null=True)
     long = models.CharField(max_length=255,null=True)
     order_price = models.FloatField(null=True)
+    user_cancel = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
 
 order_status = (
