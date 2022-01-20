@@ -5,6 +5,7 @@ urlpatterns = [
     path('brands/', views.BrandAPI.as_view(), name="equipment_brand"),
     path('brands/<int:pk>', views.SingleCategory.as_view(), name="single_brand"),
     path('category/', views.CategoryAPI.as_view(), name="equipment_category"),
+    # path("categoryLst/", views.CategoryList.as_view(), name="categoryLst"),
     path('category/<int:pk>', views.SingleCategory.as_view(), name="single_category"),
     path('sub_category', views.SubCatApi.as_view(), name="sub_category"),
     path('sub_category/<int:pk>', views.SingleSubCategory.as_view(), name="single_sub_cat"),

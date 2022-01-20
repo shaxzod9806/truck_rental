@@ -17,6 +17,10 @@ from rest_framework.pagination import LimitOffsetPagination, PageNumberPaginatio
 from utilities.pagination import PaginationHandlerMixin
 from rest_framework import filters
 
+from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+
 
 class BasicPagination(PageNumberPagination):
     page_size_query_param = 'limit'
@@ -433,8 +437,8 @@ class SingleEquipment(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     param_config = openapi.Parameter(
         'Authorization', in_=openapi.IN_HEADER,
-                                     description='enter access token with Bearer word for example: Bearer token',
-                                     type=openapi.TYPE_STRING)
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING)
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request, pk):
@@ -538,3 +542,13 @@ class SingleEquipmentAdditions(APIView):
             return Response(serializer.data)
         except:
             return Response({"detail": "Additions does not exist"})
+
+
+# ===================================WITHOUT TOKEN===================================================
+
+# class CategoryList(generics.ListAPIView):
+#     queryset = Category.objects.all()
+#     serializer_class = CategorySerializer
+#     filter_backends = [DjangoFilterBackend,SearchFilter]
+#     filterset_fields = ["id",'name_ru']
+#     search_fields = ["name_ru",]

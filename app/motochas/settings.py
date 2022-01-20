@@ -56,11 +56,9 @@ INSTALLED_APPS = [
     'customer',
     'orders',
     'django_crontab',
-
-
+    'django_filters',
 
 ]
-
 
 REST_FRAMEWORK = {
 
