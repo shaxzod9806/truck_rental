@@ -556,8 +556,8 @@ class CategoryList(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["id", 'name_ru']
-    search_fields = ["name_ru"]
+    filterset_fields = ['name_uz', 'name_ru', 'name_en']
+    search_fields = ["$name_uz","$name_ru","$name_en",]
     pagination_class = LargeResultsSetPagination
     # malum biri
     # ordering_fields = ['username', 'email']
@@ -574,8 +574,8 @@ class SubCategoryList(generics.ListAPIView):
     queryset = SubCategory.objects.all()
     serializer_class = SubCatSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["id", 'name_ru']
-    search_fields = ["name_ru"]
+    filterset_fields = ['name_uz', 'name_ru', 'name_en']
+    search_fields = ["$name_uz", "$name_ru", "$name_en", ]
     pagination_class = LargeResultsSetPagination
     # malum biri
     # ordering_fields = ['username', 'email']
@@ -592,8 +592,8 @@ class EquipmentList(generics.ListAPIView):
     queryset = Equipment.objects.all()
     serializer_class = EquipmentsSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["id", 'name_ru']
-    search_fields = ["name_ru"]
+    filterset_fields = ['name_uz', 'name_ru', 'name_en']
+    search_fields = ["$name_uz", "$name_ru", "$name_en", ]
     pagination_class = LargeResultsSetPagination
     # malum biri
     # ordering_fields = ['username', 'email']
