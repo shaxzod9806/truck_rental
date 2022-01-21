@@ -17,6 +17,11 @@ from rest_framework.pagination import LimitOffsetPagination, PageNumberPaginatio
 from utilities.pagination import PaginationHandlerMixin
 from rest_framework import filters
 
+from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from .pagination import LargeResultsSetPagination
+
 
 class BasicPagination(PageNumberPagination):
     page_size_query_param = 'limit'
@@ -433,8 +438,8 @@ class SingleEquipment(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     param_config = openapi.Parameter(
         'Authorization', in_=openapi.IN_HEADER,
-                                     description='enter access token with Bearer word for example: Bearer token',
-                                     type=openapi.TYPE_STRING)
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING)
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request, pk):
@@ -538,3 +543,59 @@ class SingleEquipmentAdditions(APIView):
             return Response(serializer.data)
         except:
             return Response({"detail": "Additions does not exist"})
+
+
+# ====================================WITHOUT TOKEN================================================================================
+
+class CategoryGetOne(generics.RetrieveAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class CategoryList(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["id", 'name_ru']
+    search_fields = ["name_ru"]
+    pagination_class = LargeResultsSetPagination
+    # malum biri
+    # ordering_fields = ['username', 'email']
+    # hammasi fieldlari kk bo'lsa'
+    ordering_fields = '__all__'
+
+
+class SubCategoryGetOne(generics.RetrieveAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCatSerializer
+
+
+class SubCategoryList(generics.ListAPIView):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCatSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["id", 'name_ru']
+    search_fields = ["name_ru"]
+    pagination_class = LargeResultsSetPagination
+    # malum biri
+    # ordering_fields = ['username', 'email']
+    # hammasi fieldlari kk bo'lsa'
+    ordering_fields = '__all__'
+
+
+class EquipmentGetOne(generics.RetrieveAPIView):
+    queryset = Equipment.objects.all()
+    serializer_class = EquipmentsSerializer
+
+
+class EquipmentList(generics.ListAPIView):
+    queryset = Equipment.objects.all()
+    serializer_class = EquipmentsSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["id", 'name_ru']
+    search_fields = ["name_ru"]
+    pagination_class = LargeResultsSetPagination
+    # malum biri
+    # ordering_fields = ['username', 'email']
+    # hammasi fieldlari kk bo'lsa'
+    ordering_fields = '__all__'

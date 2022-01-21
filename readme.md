@@ -1,4 +1,3 @@
-# Motochas backend
 
 ## To run application on production
 
