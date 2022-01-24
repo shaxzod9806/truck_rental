@@ -27,7 +27,8 @@ class UserProfile(APIView):
     param_config = openapi.Parameter(
         'Authorization', in_=openapi.IN_HEADER,
         description='enter access token with Bearer word for example: Bearer token',
-        type=openapi.TYPE_STRING)
+        type=openapi.TYPE_STRING
+    )
 
     @swagger_auto_schema(manual_parameters=[param_config], )
     def get(self, request):
@@ -89,4 +90,85 @@ class ProfileRegister(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     # except:
     #     message = {'detail': "Something went Wrong"}
+
+
 #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
+
+
+# =============================RenterProduct=================================================================
+
+class RentrProductAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = RenterProductSerializer
+    parser_classes = (MultiPartParser, FormParser)
+    param_config = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(manual_parameters=[param_config], )
+    def get(self, request):
+        try:
+            rentr_p = RenterProduct.objects.all()
+            rentr_p_seriializer = RenterProductSerializer(rentr_p, many=True)
+            return Response(rentr_p_seriializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response(rentr_p_seriializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(manual_parameters=[param_config], parser_classes=parser_classes,
+                         request_body=RenterProductSerializer)
+    def post(self, request):
+
+        rentr_p_seriializer = RenterProductSerializer(data=request.data, many=False)
+        if rentr_p_seriializer.is_valid():
+            rentr_p_seriializer.save()
+            return Response(rentr_p_seriializer.data, status=status.HTTP_200_OK)
+        return Response(rentr_p_seriializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    renter_product_id = openapi.Parameter(
+        'renter_product_id', in_=openapi.IN_FORM,
+        description='enter renter_product ID',
+        type=openapi.TYPE_INTEGER
+    )
+
+    @swagger_auto_schema(manual_parameters=[param_config, renter_product_id], request_body=RenterProductSerializer)
+    def put(self, request):
+        renter_p_id = request.data["renter_product_id"]
+        renter_p = RenterProduct.objects.get(id=renter_p_id)
+        serializer = RenterProductSerializer(renter_p, many=False, data=request.data)
+        user_type = renter_p.renter.user.user_type
+        if serializer.is_valid() and user_type <= 3:
+            serializer.save()
+            return Response({"details": "renter product updated"}, serializer.data, status=status.HTTP_200_OK)
+        return Response({"details": "renter product not updated"}, serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(manual_parameters=[renter_product_id, param_config])
+    def delete(self, request):
+        try:
+            renter_product_id = request.data["renter_product_id"]
+            renter_product = RenterProduct.objects.get(id=int(renter_product_id))
+            renter_product.delete()
+            return Response({"detail": "renter product deleted"}, status=status.HTTP_200_OK)
+
+        except:
+            return Response({"detail": "renter product not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SingleRentrProductAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    param_config = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(manual_parameters=[param_config])
+    def get(self, request, pk):
+        try:
+            renter_product = RenterProduct.objects.get(id=pk)
+            serializer = RenterProductSerializer(renter_product, many=False)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({"Renter product is not found"}, status=status.HTTP_400_BAD_REQUEST)
