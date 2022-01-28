@@ -39,7 +39,6 @@ class OrderAPIView(APIView):
     @swagger_auto_schema(request_body=OrderSerializer, parser_classes=parser_classes,
                          manual_parameters=[param_config])
     def post(self, request):
-
         serializer = OrderSerializer(data=request.data, many=False)
         if serializer.is_valid():
             serializer.save()

@@ -17,9 +17,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    country_name = serializers.SerializerMethodField("get_country_name")
+    region_name = serializers.SerializerMethodField("get_region_name")
+
     class Meta:
         model = Profile
-        fields = '__all__'
+        fields = ["id", "organization", "office_address", "user", "country", "country_name", "region", "region_name"]
+
+    def get_country_name(self, obj):
+        return obj.country.country_name
+
+    def get_region_name(self, obj):
+        return obj.region.region_name
 
 
 class FilesSerializer(serializers.ModelSerializer):
@@ -32,4 +41,3 @@ class RenterProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = RenterProduct
         fields = "__all__"
-

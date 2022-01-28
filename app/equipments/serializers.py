@@ -211,7 +211,7 @@ class EquipmentsSerializer(serializers.ModelSerializer):
         fields = ['id', 'name_uz', 'name_ru', 'name_en', 'image', 'photo_url',
                   'brand', 'brand_name',
                   'category_name', 'category', 'sub_category_name', 'sub_category',
-                  'created_at', 'updated_at', 'created_by', 'updated_by', 'hourly_price',"hourly_price_night"]
+                  'created_at', 'updated_at', 'created_by', 'updated_by', 'hourly_price', "hourly_price_night"]
 
 
 class EquipmentsSerializerUz(serializers.ModelSerializer):
