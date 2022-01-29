@@ -1,6 +1,7 @@
 from django.db import models
 from index.models import User
 from equipments.models import Equipment
+from customer.models import Region, Country
 
 upload_path = 'renters/documents/'
 
@@ -8,6 +9,8 @@ upload_path = 'renters/documents/'
 class Profile(models.Model):
     organization = models.CharField(max_length=255, null=True)
     office_address = models.CharField(max_length=255, null=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.PROTECT)
 
     # files = models.ForeignKey(Files, on_delete=models.PROTECT)
@@ -38,7 +41,3 @@ class BusyTimes(models.Model):
     busy_start = models.DateTimeField()
     busy_end = models.DateTimeField()
     product = models.ForeignKey(RenterProduct, on_delete=models.CASCADE)
-
-
-
-

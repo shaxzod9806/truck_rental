@@ -1,5 +1,5 @@
 from renter.serializers import User
-from .serializers import CustomerSerializer
+from .serializers import CustomerSerializer, CountrySerializer, RegionSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from .models import CustomerProfile
@@ -8,6 +8,7 @@ from drf_yasg import openapi
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from index.models import User
+from .models import Country, Region
 from renter.serializers import UserSerializer
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -22,9 +23,10 @@ class CustomerProfileAPI(APIView):
     param_config = openapi.Parameter(
         'Authorization', in_=openapi.IN_HEADER,
         description='enter access token with Bearer word for example: Bearer token',
-        type=openapi.TYPE_STRING)
+        type=openapi.TYPE_STRING
+    )
 
-    @swagger_auto_schema(manual_parameters=[param_config], )
+    @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
         user = request.user
         customer = CustomerProfile.objects.all()
@@ -81,4 +83,36 @@ class CustomerRegisterAPI(CreateAPIView):
             user=user
         )
         serializer = CustomerSerializer(customer, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CountryAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+
+    token = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[token])
+    def get(self, request):
+        countries = Country.objects.all()
+        countrySerializer = CountrySerializer(countries, many=True, context={"request": request})
+        return Response(data=countrySerializer.data, status=status.HTTP_200_OK)
+
+
+class RegionAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    token = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(manual_parameters=[token])
+    def get(self, request):
+        regions = Region.objects.all()
+        serializer = RegionSerializer(regions, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
