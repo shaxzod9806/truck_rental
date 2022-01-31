@@ -13,6 +13,7 @@ class Order(models.Model):
     end_time = models.DateTimeField(null=True)
     lat = models.CharField(max_length=255,null=True)
     long = models.CharField(max_length=255,null=True)
+    address = models.CharField(max_length=255, null=True)
     order_price = models.FloatField(null=True)
     user_cancel = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -21,10 +22,10 @@ class Order(models.Model):
 
 
 order_status = (
-        (1, 'pending'),
-        (2, 'canceled'),
-        (3, 'accepted'),
-        (4, 'no response'),
+        ("pending", 'pending'),
+        ("canceled", 'canceled'),
+        ("accepted", 'accepted'),
+        ("no_response", 'no response'),
     )
 
 
@@ -34,5 +35,5 @@ class OrderChecking(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     checking_start = models.DateTimeField(auto_now_add=True)
     checking_end = models.DateTimeField()
-    confirmed = models.IntegerField(choices=order_status)
+    confirmed = models.CharField(max_length=255, choices=order_status)
 

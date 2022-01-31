@@ -33,3 +33,14 @@ def send_sms(number, text, sms_id):
 
 # send_sms("998946128484", "function is running", 35)
 
+def send_confirm_sms(renter, sms, start_time, end_time, price, address):
+    renter_phone = renter.user.username
+    sms_itself = sms.objects.create(phone_number=renter_phone,
+                                    text=f"""You have new order, 
+                                    price of order: UZS {price},
+                                    start time: {start_time},
+                                    end time: {end_time},
+                                    """)
+    send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
+    sms_itself.is_sent = 1
+    sms_itself.save()

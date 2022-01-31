@@ -9,8 +9,8 @@ upload_path = 'renters/documents/'
 class Profile(models.Model):
     organization = models.CharField(max_length=255, null=True)
     office_address = models.CharField(max_length=255, null=True)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    region = models.ForeignKey(Region, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True)
     user = models.OneToOneField(User, on_delete=models.PROTECT)
 
     # files = models.ForeignKey(Files, on_delete=models.PROTECT)

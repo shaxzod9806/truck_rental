@@ -18,7 +18,8 @@ from renter.models import RenterProduct
 from datetime import timedelta
 from utilities.models import SMS
 from utilities.sms import send_sms
-from utilities.mapping import send_confirm_sms
+from utilities.sms import send_confirm_sms
+from utilities.price_calculation import renting_time_calc
 
 
 # Create your views here.
@@ -39,24 +40,34 @@ class OrderAPIView(APIView):
     @swagger_auto_schema(request_body=OrderSerializer, parser_classes=parser_classes,
                          manual_parameters=[param_config])
     def post(self, request):
-        serializer = OrderSerializer(data=request.data, many=False)
+        serializer = OrderSerializer(data=request.data, many=False, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             data = serializer.data
             near_equipment = find_near_equipment(float(data["lat"]), float(data["long"]))
+            profile_renter = renter_profile.objects.get(id=near_equipment["renter_id"])
+
+            order_itself = Order.objects.get(id=data["id"])
             checking_order = OrderChecking.objects.create(
-                renter=User.objects.get(id=near_equipment["renter_id"]),
+                renter=profile_renter.user,
                 equipment=RenterProduct.objects.get(id=near_equipment["product_id"]),
-                order=Order.objects.get(id=data["id"]),
-                confirmed=1,
+                order=order_itself,
+                confirmed="pending",
                 checking_end=datetime.today()
             )
             checking_order.checking_end = checking_order.checking_start + timedelta(minutes=15)
             checking_order.save()
             # Notify the user
             renter = renter_profile.objects.get(id=near_equipment["renter_id"])
-            send_confirm_sms(renter, SMS)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            #  This should be function outside of view
+            start_time = data["start_time"]
+            end_time = data["end_time"]
+            renting_time = renting_time_calc(start_time, end_time)
+            total_price = order_itself.equipment.hourly_price * renting_time
+            address = order_itself.address
+            data["order_price"] = total_price
+            send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
+            return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -75,7 +86,7 @@ class OrderAPIView(APIView):
         if user_type <= 2:
             order_id = request.data["order_id"]
             order = Order.objects.get(id=int(order_id))
-            serializer = OrderSerializer(order, many=False, data=request.data)
+            serializer = OrderSerializer(order, many=False, data=request.data, context={"request": request})
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -101,8 +112,8 @@ class OrderAPIView(APIView):
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
-        order = Order.objects.all()
-        serializer = OrderSerializer(order, many=True)
+        orders = Order.objects.filter(customer=request.user)
+        serializer = OrderSerializer(orders, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
