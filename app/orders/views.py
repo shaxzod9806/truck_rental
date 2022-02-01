@@ -20,14 +20,12 @@ from utilities.models import SMS
 from utilities.sms import send_sms
 from utilities.sms import send_confirm_sms
 from utilities.price_calculation import renting_time_calc
-# from equipments.views import BasicPagination
+from equipments.views import BasicPagination
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from utilities.pagination import PaginationHandlerMixin
 
 
 # Create your views here.
-class BasicPagination(PageNumberPagination):
-    page_size_query_param = 'limit'
 
 
 class OrderAPIView(APIView, PaginationHandlerMixin):
@@ -124,7 +122,6 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, ordering])
     def get(self, request):
-        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
         orders = Order.objects.filter(customer=request.user)
         page = self.paginate_queryset(orders)
         serializer = OrderSerializer(page, many=True, context={"request": request})

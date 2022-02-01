@@ -107,9 +107,9 @@ class SingleBrandAPI(APIView):
         try:
             brand = Brand.objects.get(id=pk)
             serializer = BrandSerializer(brand, many=False, context={"request": request})
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         except:
-            return Response({'detail': 'Brand does not exist'})
+            return Response({'detail': 'Brand does not exist'},status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryAPI(APIView, PaginationHandlerMixin):

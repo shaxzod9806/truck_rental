@@ -3,6 +3,7 @@ from .models import RenterProduct
 # Create your views here.
 
 from .serializers import UserSerializer, ProfileSerializer, FilesSerializer, RenterProductSerializer
+from orders.serializers import OrderSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -13,11 +14,46 @@ from rest_framework.views import APIView
 from index.permissions import IsRenter
 from rest_framework.generics import CreateAPIView
 from index.models import User
+from orders.models import Order
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from utilities.mapping import find_near_equipment
 from utilities.models import SMS
 from utilities.sms import send_sms
+from utilities.pagination import PaginationHandlerMixin
+from equipments.views import BasicPagination
+
+
+
+class RenterOrdersAPI(APIView, PaginationHandlerMixin):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    pagination_class = BasicPagination
+    serializer_class = OrderSerializer
+    token = openapi.Parameter(
+        "Authorization", in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+    ordering = openapi.Parameter(
+        'ordering', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING,
+        description='Enter field name to order for example: "order_name" ascending; '
+                    'put "-" for reverse ordering: "-order_name"'
+    )
+
+    @swagger_auto_schema(manual_parameters=[token, ordering])
+    def get(self, request):
+        user_itself = request.user
+        if user_itself.user_type == 3:
+            render_orders = Order.objects.filter(renter=user_itself)
+            page = self.paginate_queryset(render_orders)
+            if page is not None:
+                serializer = self.get_paginated_response(
+                    OrderSerializer(page, many=True, context={"request": request}).data)
+            else:
+                serializer = self.get_paginated_response(
+                    self.serializer_class(page, many=True, context={"request": request}).data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserProfile(APIView):
@@ -32,9 +68,6 @@ class UserProfile(APIView):
 
     @swagger_auto_schema(manual_parameters=[param_config], )
     def get(self, request):
-        near_equipment = find_near_equipment(41.26627926553408, 69.1718476870863)
-        print(near_equipment)
-
         # print('=============================================================')
         user = request.user
         # print(user)
@@ -96,6 +129,7 @@ class ProfileRegister(CreateAPIView):
 
 
 # =============================RenterProduct=================================================================
+
 
 class RentrProductAPI(APIView):
     permission_classes = [IsAuthenticated]
