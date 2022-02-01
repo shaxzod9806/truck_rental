@@ -91,7 +91,6 @@ class BrandAPI(APIView, PaginationHandlerMixin):
             serializer = self.get_paginated_response(BrandSerializer(page, many=True).data)
         else:
             serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

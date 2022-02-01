@@ -20,12 +20,18 @@ from utilities.models import SMS
 from utilities.sms import send_sms
 from utilities.sms import send_confirm_sms
 from utilities.price_calculation import renting_time_calc
+# from equipments.views import BasicPagination
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from utilities.pagination import PaginationHandlerMixin
 
 
 # Create your views here.
+class BasicPagination(PageNumberPagination):
+    page_size_query_param = 'limit'
 
 
-class OrderAPIView(APIView):
+class OrderAPIView(APIView, PaginationHandlerMixin):
+    pagination_class = BasicPagination
     permission_class = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = OrderSerializer
@@ -110,11 +116,25 @@ class OrderAPIView(APIView):
         else:
             return Response("not accessible customer and user", status=status.HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(manual_parameters=[param_config])
+    ordering = openapi.Parameter(
+        'ordering', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING,
+        description='Enter field name to order for example: "cat_name" ascending; '
+                    'put "-" for reverse ordering: "-cat_name"'
+    )
+
+    @swagger_auto_schema(manual_parameters=[param_config, ordering])
     def get(self, request):
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
         orders = Order.objects.filter(customer=request.user)
-        serializer = OrderSerializer(orders, many=True, context={"request": request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        page = self.paginate_queryset(orders)
+        serializer = OrderSerializer(page, many=True, context={"request": request})
+        if page is not None:
+            serializer = self.get_paginated_response(
+                OrderSerializer(page, many=True, context={"request": request}).data)
+        else:
+            serializer = self.get_paginated_response(
+                self.serializer_class(page, many=True, context={"request": request}).data)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class SingleOrderAPI(APIView):
