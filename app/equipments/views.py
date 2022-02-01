@@ -91,7 +91,6 @@ class BrandAPI(APIView, PaginationHandlerMixin):
             serializer = self.get_paginated_response(BrandSerializer(page, many=True).data)
         else:
             serializer = self.get_paginated_response(self.serializer_class(page, many=True).data)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -108,9 +107,9 @@ class SingleBrandAPI(APIView):
         try:
             brand = Brand.objects.get(id=pk)
             serializer = BrandSerializer(brand, many=False, context={"request": request})
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         except:
-            return Response({'detail': 'Brand does not exist'})
+            return Response({'detail': 'Brand does not exist'},status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryAPI(APIView, PaginationHandlerMixin):

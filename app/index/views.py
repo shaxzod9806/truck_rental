@@ -25,6 +25,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data["first_name"] = self.user.first_name
         data["last_name"] = self.user.last_name
         data["user_id"] = self.user.id
+        data["is_active"] = self.user.is_active
         # data["password"] = self.user.password
 
         return data
@@ -65,7 +66,7 @@ class UserRegister(CreateAPIView):
         if not user.is_active:
             send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
         sms_itself.is_sent = 1
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         # except:
         #     message = {'detail': "User with this username already exist"}
         #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
@@ -93,11 +94,13 @@ class VerifyUser(APIView):
         print('if out')
         if user_itself.is_active:
             print('User is already activated')
-            return Response("User is already activated",status=status.HTTP_400_BAD_REQUEST)
+            return Response("User is already activated", status=status.HTTP_400_BAD_REQUEST)
         if int(verification_code) == int(user_itself.activation_code):
             user_itself.is_active = True
             user_itself.save()
-            return Response("User is successfully activated", status=status.HTTP_200_OK)
+            return Response({"details": "User is successfully activated",
+                             "is_active": {user_itself.is_active}},
+                            status=status.HTTP_200_OK)
         else:
             return Response("Activation code is wrong", status=status.HTTP_400_BAD_REQUEST)
 
@@ -127,9 +130,9 @@ class ResetPhoneNumber(APIView):
             user_serializer = UserSerializer(user, many=False)
             print(user.id)
             user_info = {"user_id": user.id, "phone_number": sms_itself.phone_number, "user_type": user.user_type}
-            return Response(user_info,status=status.HTTP_200_OK)
+            return Response(user_info, status=status.HTTP_200_OK)
 
-        return Response('something is wrong',status=status.HTTP_400_BAD_REQUEST)
+        return Response('something is wrong', status=status.HTTP_400_BAD_REQUEST)
 
 
 class ResetVerifyUserCode(APIView):
@@ -152,7 +155,7 @@ class ResetVerifyUserCode(APIView):
         verification_code = request.GET.get('verification_code')
         user_itself = User.objects.get(id=user_id)
         if not user_itself.is_active:
-            return Response("User is not actived,you must first register",status=status.HTTP_400_BAD_REQUEST)
+            return Response("User is not actived,you must first register", status=status.HTTP_400_BAD_REQUEST)
         print(verification_code)
         print(user_itself.activation_code)
         # user_itself.activation_code =
