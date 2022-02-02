@@ -6,8 +6,8 @@ from renter.models import RenterProduct
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(User, on_delete=models.PROTECT, related_name="customer", null=True)
-    renter = models.ForeignKey(User, on_delete=models.PROTECT, null=True, related_name="renter", blank=True)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer", null=True)
+    renter = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="renter", blank=True)
     equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT,null=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True)
@@ -30,7 +30,7 @@ order_status = (
 
 
 class OrderChecking(models.Model):
-    renter = models.ForeignKey(User, on_delete=models.PROTECT, related_name="renter_temp")
+    renter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="renter_temp")
     equipment = models.ForeignKey(RenterProduct, on_delete=models.PROTECT)
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     checking_start = models.DateTimeField(auto_now_add=True)

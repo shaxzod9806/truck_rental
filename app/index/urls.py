@@ -2,6 +2,8 @@ from . import views
 from django.urls import path
 
 urlpatterns = [
+    path('SecondRegistration_userID_API/', views.SecondRegistration_userID_API.as_view(), name='SecondRegistrati_userID_API'),
+    path('SecondRegistrationAPI/', views.SecondRegistrationAPI.as_view(), name='SecondRegistrationAPI'),
     path('login/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('register/', views.UserRegister.as_view(), name="register_user"),
     path("verify_user/", views.VerifyUser.as_view(), name="verify_user"),
