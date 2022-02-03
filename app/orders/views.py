@@ -70,6 +70,8 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             total_price = order_itself.equipment.hourly_price * renting_time
             address = order_itself.address
             data["order_price"] = total_price
+
+            data["renter"] = renter.id
             send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
             return Response(data, status=status.HTTP_200_OK)
         else:
@@ -160,7 +162,7 @@ class OrderCancelAPI(APIView):
 
     order_id = openapi.Parameter(
         'order_id',
-        in_=openapi.IN_QUERY,
+        in_=openapi.IN_FORM,
         description='Enter order id ',
         type=openapi.TYPE_INTEGER
     )

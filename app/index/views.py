@@ -26,7 +26,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data["last_name"] = self.user.last_name
         data["user_id"] = self.user.id
         data["is_active"] = self.user.is_active
-        # data["password"] = self.user.password
 
         return data
 
@@ -35,8 +34,68 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
+class SecondRegistration_userID_API(APIView):
+    serializer_class = UserSerializer
+    http_method_names = ["post"]
+    user_id = openapi.Parameter(
+        'user_id',
+        in_=openapi.IN_QUERY,
+        description='enter user_id ',
+        type=openapi.TYPE_INTEGER
+    )
+
+    @swagger_auto_schema(manual_parameters=[user_id])
+    def post(self, request):
+        random_number = random.randrange(10000, 99999)
+        user_id = request.GET.get("user_id")
+        user_itself = User.objects.get(id=user_id)
+        user_itself.activation_code = random_number
+        serializer = UserSerializer(user_itself, many=False)
+        user_itself.save()
+        print(user_itself)
+        if user_itself.is_active:
+            return Response({"details": "user already active", "is_active": user_itself.is_active},status=status.HTTP_400_BAD_REQUEST)
+        sms_itself = SMS.objects.create(
+            phone_number=user_itself.username, text=random_number,
+        )
+        send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
+        sms_itself.is_sent = 1
+        return Response(serializer.data,status=status.HTTP_200_OK)
+
+
+class SecondRegistrationAPI(APIView):
+    serializer_class = UserSerializer
+    http_method_names = ["post"]
+    verification_code = openapi.Parameter(
+        'verification_code',
+        in_=openapi.IN_QUERY,
+        description='enter verification_code ',
+        type=openapi.TYPE_INTEGER
+    )
+    user_id = openapi.Parameter(
+        'user_id',
+        in_=openapi.IN_QUERY,
+        description='enter user_id ',
+        type=openapi.TYPE_INTEGER
+    )
+
+    @swagger_auto_schema(manual_parameters=[verification_code, user_id])
+    def post(self, request):
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        user_id = request.GET.get("user_id")
+        user_itself = User.objects.get(id=user_id)
+        serializer=UserSerializer(user_itself,many=False)
+        verification_code = request.GET.get("verification_code")
+
+        if int(user_itself.activation_code) == int(verification_code):
+            user_itself.is_active = True
+            user_itself.save()
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserRegister(CreateAPIView):
-    # permission_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
     http_method_names = ['post']
 
@@ -62,7 +121,9 @@ class UserRegister(CreateAPIView):
             activation_code=random_number
         )
         serializer = UserSerializer(user, many=False)
-        sms_itself = SMS.objects.create(phone_number=user.username, text=random_number)
+        sms_itself = SMS.objects.create(phone_number=user.username,
+                                        text=data["first_name"] + " bu sizning Tasdiqlash kodingiz: " + str(
+                                            random_number))
         if not user.is_active:
             send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
         sms_itself.is_sent = 1
@@ -129,7 +190,8 @@ class ResetPhoneNumber(APIView):
             print(user.activation_code)
             user_serializer = UserSerializer(user, many=False)
             print(user.id)
-            user_info = {"user_id": user.id, "phone_number": sms_itself.phone_number, "user_type": user.user_type}
+            user_info = {"user_id": user.id, "is_active": user.is_active, "phone_number": sms_itself.phone_number,
+                         "user_type": user.user_type}
             return Response(user_info, status=status.HTTP_200_OK)
 
         return Response('something is wrong', status=status.HTTP_400_BAD_REQUEST)
@@ -156,9 +218,6 @@ class ResetVerifyUserCode(APIView):
         user_itself = User.objects.get(id=user_id)
         if not user_itself.is_active:
             return Response("User is not actived,you must first register", status=status.HTTP_400_BAD_REQUEST)
-        print(verification_code)
-        print(user_itself.activation_code)
-        # user_itself.activation_code =
         if int(verification_code) == int(user_itself.activation_code):
             user_itself.save()
             return Response('verification code is correct', status=status.HTTP_200_OK)
@@ -186,5 +245,7 @@ class Reset_New_Password(APIView):
             user.last_name = password  # FOR CHEKKING
             user.save()
             print(user.password)
-            return Response('new password is created', status=status.HTTP_200_OK)
-        return Response('something went wrong', status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": 'new password is created', "is_active": user.is_active},
+                            status=status.HTTP_200_OK)
+        return Response({"detail": 'something went wrong', "is_active": user.is_active},
+                        status=status.HTTP_400_BAD_REQUEST)
