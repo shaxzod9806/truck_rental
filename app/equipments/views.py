@@ -544,7 +544,7 @@ class SingleEquipmentAdditions(APIView):
             return Response({"detail": "Additions does not exist"})
 
 
-# ====================================WITHOUT TOKEN================================================================================
+# ====================================WITOKENTHOUT ================================================================================
 
 class CategoryGetOne(generics.RetrieveAPIView):
     queryset = Category.objects.all()
