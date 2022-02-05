@@ -12,11 +12,6 @@ class OrderSerializer(serializers.ModelSerializer):
     equipment_name = serializers.SerializerMethodField("get_equipment_name")
     status = serializers.SerializerMethodField(read_only=True)
 
-    # customer_address = serializers.SerializerMethodField('get_customer_address')
-    #
-    # def get_customer_address(self, obj):
-    #     user = User.objects.get(id=obj.customer.id)
-    #     return user.first_name
 
     def get_customer_name(self, obj):
         user = User.objects.get(id=obj.customer.id)

@@ -20,7 +20,7 @@ def find_min(kilometers):
     product_id = 0
     for i in kilometers:
         km_itself = i["km"]
-        if min_km > km_itself:
+        if min_km >= km_itself:
             min_km = km_itself
             renter_id = i["renter_id"]
             product_id = i["product_id"]
