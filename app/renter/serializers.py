@@ -56,5 +56,6 @@ class RenterProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RenterProduct
-        fields = ["equipment", "equipment_name", "renter_description", "latitude", "longitude",
+        fields = ["id", "equipment", "equip"
+                                     "ment_name", "renter_description", "latitude", "longitude",
                   "address_name", "renter", "renter_name"]
