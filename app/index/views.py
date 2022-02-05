@@ -52,15 +52,18 @@ class SecondRegistration_userID_API(APIView):
         user_itself.activation_code = random_number
         serializer = UserSerializer(user_itself, many=False)
         user_itself.save()
-        print(user_itself)
         if user_itself.is_active:
-            return Response({"details": "user already active", "is_active": user_itself.is_active},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"details": "user already active", "is_active": user_itself.is_active},
+                            status=status.HTTP_400_BAD_REQUEST)
         sms_itself = SMS.objects.create(
-            phone_number=user_itself.username, text=random_number,
+            phone_number=user_itself.username,
+            text=f"""Xayrli kun  {(user_itself.first_name).capitalize()} 
+            Bu sizning tasdiqlash kodingiz: {random_number},
+                """
         )
         send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
         sms_itself.is_sent = 1
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SecondRegistrationAPI(APIView):
@@ -84,15 +87,15 @@ class SecondRegistrationAPI(APIView):
         print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         user_id = request.GET.get("user_id")
         user_itself = User.objects.get(id=user_id)
-        serializer=UserSerializer(user_itself,many=False)
+        serializer = UserSerializer(user_itself, many=False)
         verification_code = request.GET.get("verification_code")
 
         if int(user_itself.activation_code) == int(verification_code):
             user_itself.is_active = True
             user_itself.save()
-            return Response(serializer.data,status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserRegister(CreateAPIView):

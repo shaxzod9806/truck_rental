@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from index.permissions import IsRenter
 from rest_framework.generics import CreateAPIView
 from index.models import User
+from customer.models import Country, Region
 from orders.models import Order
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
@@ -22,7 +23,6 @@ from utilities.models import SMS
 from utilities.sms import send_sms
 from utilities.pagination import PaginationHandlerMixin
 from equipments.views import BasicPagination
-
 
 
 class RenterOrdersAPI(APIView, PaginationHandlerMixin):
@@ -72,14 +72,9 @@ class UserProfile(APIView):
         user = request.user
         # print(user)
         profile = Profile.objects.all()
-        # print(profile)
         # profile = Profile.objects.get(user=user.id)
         user_serializer = UserSerializer(user, many=True)
-        # print(user)
         profile_serializer = ProfileSerializer(profile, many=True)
-        # print(profile_serializer)
-        # data = {"user": user_serializer.data, "user_profile": profile_serializer.data}
-        # print(profile_serializer.data)
         return Response(profile_serializer.data)
 
     @swagger_auto_schema(request_body=ProfileSerializer, manual_parameters=[param_config])
@@ -94,30 +89,33 @@ class UserProfile(APIView):
         return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProfileRegister(CreateAPIView):
-    # permission_classes = (IsAuthenticated,)
+class ProfileRegister(APIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
-    http_method_names = ['post']
+    parser_classes = (MultiPartParser, FormParser)
+    # http_method_names = ['post']
 
-    @swagger_auto_schema(request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            # 'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-            'organization': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-            'office_address': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-            'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
+    token = openapi.Parameter(
+        "Authorization", in_=openapi.IN_HEADER,
+        description="enter access token with Bearer word for example: Bearer token",
+        type=openapi.TYPE_STRING
+    )
 
-        }
-    ))
+    @swagger_auto_schema(manual_parameters=[token], parser_classes=parser_classes,
+                         request_body=ProfileSerializer)
     def post(self, request):
         data = request.data
         # try:
-        user = User.objects.get(id=data["user_id"])
+        user = User.objects.get(id=data["user"])
+        user.user_type = 3
+
+        print(user.user_type)
         profile = Profile.objects.create(
-            # phone_number=data["phone_number"],
             organization=data["organization"],
             office_address=data["office_address"],
-            user=user
+            country=Country.objects.get(id=data["country"]),
+            region=Region.objects.get(id=data["region"]),
+            user=user,
         )
         serializer = ProfileSerializer(profile, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -131,8 +129,9 @@ class ProfileRegister(CreateAPIView):
 # =============================RenterProduct=================================================================
 
 
-class RentrProductAPI(APIView):
+class RentrProductAPI(APIView, PaginationHandlerMixin):
     permission_classes = [IsAuthenticated]
+    pagination_class = BasicPagination
     serializer_class = RenterProductSerializer
     parser_classes = (MultiPartParser, FormParser)
     param_config = openapi.Parameter(
@@ -143,12 +142,27 @@ class RentrProductAPI(APIView):
 
     @swagger_auto_schema(manual_parameters=[param_config], )
     def get(self, request):
-        try:
-            rentr_p = RenterProduct.objects.all()
-            rentr_p_seriializer = RenterProductSerializer(rentr_p, many=True)
-            return Response(rentr_p_seriializer.data, status=status.HTTP_200_OK)
-        except:
-            return Response(rentr_p_seriializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        #     rentr_p = RenterProduct.objects.all()
+        #     rentr_p_seriializer = RenterProductSerializer(rentr_p, many=True)
+        #     return Response(rentr_p_seriializer.data, status=status.HTTP_200_OK)
+        # except:
+        #     return Response(rentr_p_seriializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        renter_products = RenterProduct.objects.filter(renter=request.user.id)
+        print(renter_products)
+        page = self.paginate_queryset(renter_products)
+        serializer = RenterProductSerializer(page, many=True)
+        print(serializer.data)
+        if page is not None:
+            serializer = self.get_paginated_response(
+                RenterProductSerializer(page, many=True).data)
+        else:
+            serializer = self.get_paginated_response(
+                self.serializer_class(page, many=True)
+            )
+        print(serializer.data)
+        return Response(serializer.data)
 
     @swagger_auto_schema(manual_parameters=[param_config], parser_classes=parser_classes,
                          request_body=RenterProductSerializer)

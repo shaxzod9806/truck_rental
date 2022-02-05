@@ -70,8 +70,14 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             total_price = order_itself.equipment.hourly_price * renting_time
             address = order_itself.address
             data["order_price"] = total_price
-
+            data["notes"] = data["notes"]
             data["renter"] = renter.id
+            new_serializer = OrderSerializer(data=data, many=False)
+            if new_serializer.is_valid():
+                print("hello")
+                new_serializer.save()
+            else:
+                return Response(new_serializer.errors)
             send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
             return Response(data, status=status.HTTP_200_OK)
         else:
@@ -124,15 +130,19 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, ordering])
     def get(self, request):
+        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
         orders = Order.objects.filter(customer=request.user)
+        print(orders)
         page = self.paginate_queryset(orders)
         serializer = OrderSerializer(page, many=True, context={"request": request})
+        print(serializer.data)
         if page is not None:
             serializer = self.get_paginated_response(
                 OrderSerializer(page, many=True, context={"request": request}).data)
         else:
             serializer = self.get_paginated_response(
                 self.serializer_class(page, many=True, context={"request": request}).data)
+        print(f"serializer.data   {serializer.data}")
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
