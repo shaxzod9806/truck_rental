@@ -107,9 +107,9 @@ class SingleBrandAPI(APIView):
         try:
             brand = Brand.objects.get(id=pk)
             serializer = BrandSerializer(brand, many=False, context={"request": request})
-            return Response(serializer.data,status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except:
-            return Response({'detail': 'Brand does not exist'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Brand does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryAPI(APIView, PaginationHandlerMixin):
@@ -573,7 +573,7 @@ class SubCategoryList(generics.ListAPIView):
     queryset = SubCategory.objects.all()
     serializer_class = SubCatSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['name_uz', 'name_ru', 'name_en',"category"]
+    filterset_fields = ['name_uz', 'name_ru', 'name_en', "category"]
     search_fields = ["$name_uz", "$name_ru", "$name_en", ]
     pagination_class = LargeResultsSetPagination
     # malum biri
@@ -591,7 +591,7 @@ class EquipmentList(generics.ListAPIView):
     queryset = Equipment.objects.all()
     serializer_class = EquipmentsSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['name_uz', 'name_ru', 'name_en',"sub_category","category"]
+    filterset_fields = ['name_uz', 'name_ru', 'name_en', "sub_category", "category", "brand"]
     search_fields = ["$name_uz", "$name_ru", "$name_en"]
     pagination_class = LargeResultsSetPagination
     # malum biri

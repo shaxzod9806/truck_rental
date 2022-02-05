@@ -50,7 +50,6 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             data = serializer.data
             near_equipment = find_near_equipment(float(data["lat"]), float(data["long"]))
             profile_renter = renter_profile.objects.get(id=near_equipment["renter_id"])
-
             order_itself = Order.objects.get(id=data["id"])
             checking_order = OrderChecking.objects.create(
                 renter=profile_renter.user,
@@ -64,6 +63,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             # Notify the user
             renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             #  This should be function outside of view
+            print(data["start_time"])
             start_time = data["start_time"]
             end_time = data["end_time"]
             renting_time = renting_time_calc(start_time, end_time)
