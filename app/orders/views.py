@@ -23,6 +23,8 @@ from utilities.price_calculation import renting_time_calc
 from equipments.views import BasicPagination
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from utilities.pagination import PaginationHandlerMixin
+from django.utils.dateparse import parse_datetime
+
 
 
 # Create your views here.
@@ -63,7 +65,6 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             # Notify the user
             renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             #  This should be function outside of view
-            print(data["start_time"])
             start_time = data["start_time"]
             end_time = data["end_time"]
             renting_time = renting_time_calc(start_time, end_time)
@@ -72,12 +73,10 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             data["order_price"] = total_price
             data["notes"] = data["notes"]
             data["renter"] = renter.id
-            new_serializer = OrderSerializer(data=data, many=False)
-            if new_serializer.is_valid():
-                print("hello")
-                new_serializer.save()
-            else:
-                return Response(new_serializer.errors)
+            orderjon = Order.objects.get(id=data["id"])
+            orderjon.start_time = parse_datetime(start_time)
+            orderjon.end_time = parse_datetime(end_time)
+            orderjon.save()
             send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
             return Response(data, status=status.HTTP_200_OK)
         else:
