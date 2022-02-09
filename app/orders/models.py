@@ -8,7 +8,8 @@ from renter.models import RenterProduct
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer", null=True)
+    # User  -> customer profile
+    customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer", null=True)  #
     renter = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="renter", blank=True)
     equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT, null=True)
     start_time = models.DateTimeField(null=True, blank=True)
@@ -24,10 +25,10 @@ class Order(models.Model):
 
 
 order_status = (
-    ("pending", 'pending'),
-    ("canceled", 'canceled'),
-    ("accepted", 'accepted'),
-    ("no_response", 'no response'),
+    (1, 'pending'),
+    (2, 'canceled'),
+    (3, 'accepted'),
+    (4, 'no response'),
 )
 
 

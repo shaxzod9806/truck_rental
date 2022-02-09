@@ -31,7 +31,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_status(self, obj):
         request = self.context.get('request')
-        status = "pending"
+        status = 1
         if request.method == 'GET':
             status = OrderChecking.objects.get(order=obj).confirmed
         return status
