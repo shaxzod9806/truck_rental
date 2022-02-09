@@ -57,7 +57,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
                 renter=profile_renter.user,
                 equipment=RenterProduct.objects.get(id=near_equipment["product_id"]),
                 order=order_itself,
-                confirmed="pending",
+                confirmed=1,
                 checking_end=datetime.today()
             )
             checking_order.checking_end = checking_order.checking_start + timedelta(minutes=15)
@@ -186,3 +186,42 @@ class OrderCancelAPI(APIView):
             return Response({"details": "order canceled"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already connected renter"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderAcceptAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    token = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
+                              description='enter access token', type=openapi.TYPE_STRING, )
+    order_id = openapi.Parameter(
+        'order_id',
+        in_=openapi.IN_QUERY,
+        description='Enter order id',
+        type=openapi.TYPE_INTEGER
+    )
+
+    is_accept = openapi.Parameter(
+        'is_accept',
+        in_=openapi.IN_QUERY,
+        description='2-cancel;  3-accept',
+        type=openapi.TYPE_INTEGER
+    )
+
+    @swagger_auto_schema(manual_parameters=[order_id, token,is_accept])
+    def post(self, request):
+        order_id = request.GET.get('order_id')
+        is_accept = request.GET.get('is_accept')
+        print(order_id)
+        renter = request.user
+        print(is_accept)
+        order_itself = Order.objects.get(id=order_id)
+        orderchecking_itself = OrderChecking.objects.get(order=order_id)
+        if not order_itself.renter:
+            order_itself.renter = renter
+            orderchecking_itself.confirmed = is_accept
+            orderchecking_itself.renter = renter
+            orderchecking_itself.save()
+            order_itself.save()
+            print(orderchecking_itself.renter)
+            return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"details": "there is already accepted renter"}, status=status.HTTP_400_BAD_REQUEST)

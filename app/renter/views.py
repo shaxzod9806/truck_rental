@@ -107,8 +107,7 @@ class ProfileRegister(APIView):
         data = request.data
         # try:
         user = User.objects.get(id=data["user"])
-        user.user_type = 3
-
+        # user.user_type = 3
         print(user.user_type)
         profile = Profile.objects.create(
             organization=data["organization"],
@@ -148,12 +147,14 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
         #     return Response(rentr_p_seriializer.data, status=status.HTTP_200_OK)
         # except:
         #     return Response(rentr_p_seriializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-        renter_products = RenterProduct.objects.filter(renter=request.user.id)
-        print(renter_products)
+        # print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        user_id = request.user.id
+        renter_id = Profile.objects.get(user=user_id)
+        renter_products = RenterProduct.objects.filter(renter=renter_id)
+        # print(renter_products)
         page = self.paginate_queryset(renter_products)
         serializer = RenterProductSerializer(page, many=True)
-        print(serializer.data)
+        # print(serializer.data)
         if page is not None:
             serializer = self.get_paginated_response(
                 RenterProductSerializer(page, many=True).data)

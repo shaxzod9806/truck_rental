@@ -11,10 +11,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ("phone_number", "customer_address", "user", "country", "country_name", "region", "region_name")
 
     def get_country_name(self, obj):
-        return obj.country.country_name
+        country = Country.objects.get(id=obj.country.id)
+        return country.country_name
+
 
     def get_region_name(self, obj):
-        return obj.region.region_name
+        region = Region.objects.get(id=obj.region.id)
+        return region.region_name
 
 
 class CountrySerializer(serializers.ModelSerializer):

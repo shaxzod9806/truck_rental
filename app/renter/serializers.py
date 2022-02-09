@@ -27,11 +27,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["id", "organization", "office_address", "user", "country", "country_name", "region", "region_name"]
 
     def get_country_name(self, obj):
-        country = Country.objects.get(id=obj.country)
+        country = Country.objects.get(id=obj.country.id)
         return country.country_name
 
     def get_region_name(self, obj):
-        region = Region.objects.get(id=obj.region)
+        region = Region.objects.get(id=obj.region.id)
         return region.region_name
 
 
