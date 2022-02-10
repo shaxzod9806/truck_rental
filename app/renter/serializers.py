@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from index.models import User
-from equipments.models import Equipment
+from equipments.models import Equipment, Category, SubCategory
 from customer.models import Region, Country
 from .models import Profile, Files, RenterProduct
 from rest_framework_simplejwt.tokens import AccessToken
@@ -44,6 +44,30 @@ class FilesSerializer(serializers.ModelSerializer):
 class RenterProductSerializer(serializers.ModelSerializer):
     equipment_name = serializers.SerializerMethodField("get_equipment_name")
     renter_name = serializers.SerializerMethodField("get_renter_name")
+    category_id = serializers.SerializerMethodField("get_category_id")
+    category_name = serializers.SerializerMethodField("get_category_name")
+    sub_category_id = serializers.SerializerMethodField("get_sub_category_id")
+    sub_category_name = serializers.SerializerMethodField("get_sub_category_name")
+
+    def get_category_id(self, obj):
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        category = Category.objects.get(id=equipment.category.id)
+        return category.id
+
+    def get_category_name(self, obj):
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        category = Category.objects.get(id=equipment.category.id)
+        return category.name_ru
+
+    def get_sub_category_name(self, obj):
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        sub_category = SubCategory.objects.get(id=equipment.sub_category.id)
+        return sub_category.name_ru
+
+    def get_sub_category_id(self, obj):
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        sub_category = SubCategory.objects.get(id=equipment.sub_category.id)
+        return sub_category.id
 
     def get_equipment_name(self, obj):
         equipment = Equipment.objects.get(id=obj.equipment.id)
@@ -56,6 +80,6 @@ class RenterProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RenterProduct
-        fields = ["id", "equipment", "equip"
-                                     "ment_name", "renter_description", "latitude", "longitude",
+        fields = ["id", "category_id", "category_name", "sub_category_id", "sub_category_name",
+                  "equipment", "equipment_name", "renter_description", "latitude", "longitude",
                   "address_name", "renter", "renter_name"]

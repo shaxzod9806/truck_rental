@@ -6,7 +6,6 @@ from renter.models import RenterProduct
 
 # Create your models here.
 
-
 class Order(models.Model):
     # User  -> customer profile
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer", null=True)  #
