@@ -44,8 +44,10 @@ class RenterOrdersAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[token, ordering])
     def get(self, request):
         user_itself = request.user
+        print(user_itself.username)
         if user_itself.user_type == 3:
             render_orders = Order.objects.filter(renter=user_itself)
+            print(render_orders)
             page = self.paginate_queryset(render_orders)
             if page is not None:
                 serializer = self.get_paginated_response(
@@ -59,7 +61,6 @@ class RenterOrdersAPI(APIView, PaginationHandlerMixin):
 class UserProfile(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
-
     param_config = openapi.Parameter(
         'Authorization', in_=openapi.IN_HEADER,
         description='enter access token with Bearer word for example: Bearer token',
@@ -139,15 +140,8 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
         type=openapi.TYPE_STRING
     )
 
-    @swagger_auto_schema(manual_parameters=[param_config], )
+    @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
-        # try:
-        #     rentr_p = RenterProduct.objects.all()
-        #     rentr_p_seriializer = RenterProductSerializer(rentr_p, many=True)
-        #     return Response(rentr_p_seriializer.data, status=status.HTTP_200_OK)
-        # except:
-        #     return Response(rentr_p_seriializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
         user_id = request.user.id
         renter_id = Profile.objects.get(user=user_id)
         renter_products = RenterProduct.objects.filter(renter=renter_id)
