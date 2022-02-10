@@ -74,34 +74,55 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
 class CustomerRegisterAPI(CreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = CustomerSerializer
+    parser_classes=[MultiPartParser,FormParser]
     http_method_names = ['post']
 
-    @swagger_auto_schema(request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-            'customer_address': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-            'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
-            'country': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
-            'region': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
-            'token': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-        }
-    ))
-    def post(self, request):
-        data = request.data
-        # try:
-        user = User.objects.get(id=data["user_id"])
-        country = Country.objects.get(id=data["country"])
-        region = Region.objects.get(id=data["region"])
-        customer = CustomerProfile.objects.create(
+    token = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+    @swagger_auto_schema(manual_parameters=[token],request_body=CustomerSerializer,)
+    def post(self,request):
+        data=request.data
+        user=User.objects.get(id=request.data["user"])
+        country=Country.objects.get(id=request.data["country"])
+        region=Region.objects.get(id=request.data["region"])
+        customer=CustomerProfile.objects.create(
             phone_number=data["phone_number"],
-            customer_address=data["customer_address"],
             country=country,
             region=region,
+            customer_address=data["customer_address"],
             user=user
         )
-        serializer = CustomerSerializer(customer, many=False)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer=CustomerSerializer(customer,many=False)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+    # @swagger_auto_schema(request_body=openapi.Schema(
+    #     type=openapi.TYPE_OBJECT,
+    #     properties={
+    #         'phone_number': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
+    #         'customer_address': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
+    #         'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
+    #         'country': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
+    #         'region': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
+    #         'token': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
+    #     }
+    # ))
+    # def post(self, request):
+    #     data = request.data
+    #     # try:
+    #     user = User.objects.get(id=data["user_id"])
+    #     country = Country.objects.get(id=data["country"])
+    #     region = Region.objects.get(id=data["region"])
+    #     customer = CustomerProfile.objects.create(
+    #         phone_number=data["phone_number"],
+    #         customer_address=data["customer_address"],
+    #         country=country,
+    #         region=region,
+    #         user=user
+    #     )
+    #     serializer = CustomerSerializer(customer, many=False)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CountryAPI(APIView):
