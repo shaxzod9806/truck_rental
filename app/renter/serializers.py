@@ -44,16 +44,30 @@ class FilesSerializer(serializers.ModelSerializer):
 class RenterProductSerializer(serializers.ModelSerializer):
     equipment_name = serializers.SerializerMethodField("get_equipment_name")
     renter_name = serializers.SerializerMethodField("get_renter_name")
+    category_id = serializers.SerializerMethodField("get_category_id")
     category_name = serializers.SerializerMethodField("get_category_name")
+    sub_category_id = serializers.SerializerMethodField("get_sub_category_id")
     sub_category_name = serializers.SerializerMethodField("get_sub_category_name")
 
+    def get_category_id(self, obj):
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        category = Category.objects.get(id=equipment.category.id)
+        return category.id
+
     def get_category_name(self, obj):
-        category = Category.objects.get(id=obj.category.id)
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        category = Category.objects.get(id=equipment.category.id)
         return category.name_ru
 
     def get_sub_category_name(self, obj):
-        sub_category = SubCategory.objects.get(id=obj.sub_category.id)
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        sub_category = SubCategory.objects.get(id=equipment.sub_category.id)
         return sub_category.name_ru
+
+    def get_sub_category_id(self, obj):
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        sub_category = SubCategory.objects.get(id=equipment.sub_category.id)
+        return sub_category.id
 
     def get_equipment_name(self, obj):
         equipment = Equipment.objects.get(id=obj.equipment.id)
@@ -66,6 +80,6 @@ class RenterProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RenterProduct
-        fields = ["id", "category", "category_name", "sub_category", "sub_category_name",
+        fields = ["id", "category_id", "category_name", "sub_category_id", "sub_category_name",
                   "equipment", "equipment_name", "renter_description", "latitude", "longitude",
                   "address_name", "renter", "renter_name"]

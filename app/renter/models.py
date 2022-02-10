@@ -25,8 +25,8 @@ class Files(models.Model):
 
 
 class RenterProduct(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True)
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE,null=True)
+    # category = models.ForeignKey(Category, on_delete=models.CASCADE,null=True)
+    # sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE,null=True)
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     renter_description = models.TextField(blank=True)
     latitude = models.FloatField()
