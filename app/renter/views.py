@@ -40,16 +40,11 @@ class RenterOrdersAPI(APIView, PaginationHandlerMixin):
         description='Enter field name to order for example: "order_name" ascending; '
                     'put "-" for reverse ordering: "-order_name"'
     )
-    user_id = openapi.Parameter(
-        'user_id', in_=openapi.IN_QUERY,
-        description='enter user_id ',
-        type=openapi.TYPE_INTEGER
-    )
 
-    @swagger_auto_schema(manual_parameters=[token, ordering, user_id])
+    @swagger_auto_schema(manual_parameters=[token, ordering])
     def get(self, request):
-        id_user = request.GET.get("user_id")
-        user_itself = User.objects.get(id=id_user)
+        user_itself = request.user
+        # user_itself = User.objects.get(id=id_user)
         if user_itself.user_type == 3:
             order_checking_obj = OrderChecking.objects.filter(renter=user_itself)
             # print(order_checking_obj.values())
