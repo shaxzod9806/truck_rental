@@ -26,7 +26,6 @@ from utilities.pagination import PaginationHandlerMixin
 from django.utils.dateparse import parse_datetime
 
 
-
 # Create your views here.
 
 
@@ -50,6 +49,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
         if serializer.is_valid():
             serializer.save()
             data = serializer.data
+            # print(data)
             near_equipment = find_near_equipment(float(data["lat"]), float(data["long"]))
             profile_renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             order_itself = Order.objects.get(id=data["id"])
@@ -66,6 +66,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             #  This should be function outside of view
             start_time = data["start_time"]
+            print(start_time)
             end_time = data["end_time"]
             renting_time = renting_time_calc(start_time, end_time)
             total_price = order_itself.equipment.hourly_price * renting_time
@@ -76,7 +77,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             orderjon = Order.objects.get(id=data["id"])
             orderjon.start_time = parse_datetime(start_time)
             orderjon.end_time = parse_datetime(end_time)
-            orderjon.save()
+            # orderjon.save()
             send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
             return Response(data, status=status.HTTP_200_OK)
         else:
@@ -155,12 +156,10 @@ class SingleOrderAPI(APIView):
 
     @swagger_auto_schema(manual_parameters=[token], parser_classes=parser_classes)
     def get(self, request, pk):
-        try:
-            order = Order.objects.get(id=pk)
-            serializer = OrderSerializer(order, many=False)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
-            return Response({'detail': 'Order does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        order = Order.objects.get(id=pk)
+        serializer = OrderSerializer(order, many=False, context={"request": request})
+        print(serializer.data)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class OrderCancelAPI(APIView):
@@ -206,7 +205,7 @@ class OrderAcceptAPI(APIView):
         type=openapi.TYPE_INTEGER
     )
 
-    @swagger_auto_schema(manual_parameters=[order_id, token,is_accept])
+    @swagger_auto_schema(manual_parameters=[order_id, token, is_accept])
     def post(self, request):
         order_id = request.GET.get('order_id')
         is_accept = request.GET.get('is_accept')
