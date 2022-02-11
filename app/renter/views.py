@@ -15,7 +15,7 @@ from index.permissions import IsRenter
 from rest_framework.generics import CreateAPIView
 from index.models import User
 from customer.models import Country, Region
-from orders.models import Order
+from orders.models import Order, OrderChecking
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser, MultiPartParser, FormParser
 from utilities.mapping import find_near_equipment
@@ -40,14 +40,22 @@ class RenterOrdersAPI(APIView, PaginationHandlerMixin):
         description='Enter field name to order for example: "order_name" ascending; '
                     'put "-" for reverse ordering: "-order_name"'
     )
+    user_id = openapi.Parameter(
+        'user_id', in_=openapi.IN_QUERY,
+        description='enter user_id ',
+        type=openapi.TYPE_INTEGER
+    )
 
-    @swagger_auto_schema(manual_parameters=[token, ordering])
+    @swagger_auto_schema(manual_parameters=[token, ordering, user_id])
     def get(self, request):
-        user_itself = request.user
-        print(user_itself.username)
+        id_user = request.GET.get("user_id")
+        user_itself = User.objects.get(id=id_user)
         if user_itself.user_type == 3:
-            render_orders = Order.objects.filter(renter=user_itself)
-            print(render_orders)
+            order_checking_obj = OrderChecking.objects.filter(renter=user_itself)
+            # print(order_checking_obj.values())
+            render_orders = []
+            for i in range(order_checking_obj.count()):
+                render_orders += Order.objects.filter(id=order_checking_obj[i].order.id)
             page = self.paginate_queryset(render_orders)
             if page is not None:
                 serializer = self.get_paginated_response(
@@ -162,7 +170,6 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[param_config], parser_classes=parser_classes,
                          request_body=RenterProductSerializer)
     def post(self, request):
-
         rentr_p_seriializer = RenterProductSerializer(data=request.data, many=False)
         if rentr_p_seriializer.is_valid():
             rentr_p_seriializer.save()
@@ -194,7 +201,6 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
             renter_product = RenterProduct.objects.get(id=int(renter_product_id))
             renter_product.delete()
             return Response({"detail": "renter product deleted"}, status=status.HTTP_200_OK)
-
         except:
             return Response({"detail": "renter product not found"}, status=status.HTTP_400_BAD_REQUEST)
 
