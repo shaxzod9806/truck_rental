@@ -100,6 +100,7 @@ class UserProfile(APIView):
         except:
             return Response("profile not found", status=status.HTTP_400_BAD_REQUEST)
 
+
 # ADDED
 class ProfileRegister(APIView):
     permission_classes = (IsAuthenticated,)

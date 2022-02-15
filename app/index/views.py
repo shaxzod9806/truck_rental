@@ -14,6 +14,8 @@ from rest_framework.generics import CreateAPIView
 import random
 from utilities.models import SMS
 from utilities.sms import send_sms
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -252,3 +254,27 @@ class Reset_New_Password(APIView):
                             status=status.HTTP_200_OK)
         return Response({"detail": 'something went wrong', "is_active": user.is_active},
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserEditAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    serializers = UserSerializer
+    token = openapi.Parameter(
+        "Authorization", in_=openapi.IN_HEADER,
+        description="enter access token with Bearer word for example: Bearer token",
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(request_body=UserSerializer, manual_parameters=[token])
+    def put(self, request):
+        user = request.user
+        data = request.data
+        user_itself = User.objects.get(id=user.id)
+
+        user_serializer = UserSerializer(user_itself, many=False, data=request.data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return Response(data=user_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(data=user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
