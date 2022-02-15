@@ -92,6 +92,16 @@ class UserProfile(APIView):
             return Response(profile_serializer.data, status=status.HTTP_200_OK)
         return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(manual_parameters=[param_config])
+    def delete(self, request):
+        try:
+            user = request.user
+            profile = Profile.objects.get(user=user.id)
+            profile.delete()
+            return Response("profile deleted", status=status.HTTP_200_OK)
+        except:
+            return Response("profile not found", status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProfileRegister(APIView):
     permission_classes = (IsAuthenticated,)
