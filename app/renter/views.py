@@ -74,9 +74,7 @@ class UserProfile(APIView):
     def get(self, request):
         # print('=============================================================')
         user = request.user
-        # print(user)
         profile = Profile.objects.all()
-        # profile = Profile.objects.get(user=user.id)
         user_serializer = UserSerializer(user, many=True)
         profile_serializer = ProfileSerializer(profile, many=True)
         return Response(profile_serializer.data)
@@ -102,7 +100,7 @@ class UserProfile(APIView):
         except:
             return Response("profile not found", status=status.HTTP_400_BAD_REQUEST)
 
-
+# ADDED
 class ProfileRegister(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
