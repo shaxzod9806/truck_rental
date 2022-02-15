@@ -66,10 +66,12 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             #  This should be function outside of view
             start_time = data["start_time"]
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             print(start_time)
             end_time = data["end_time"]
             renting_time = renting_time_calc(start_time, end_time)
             total_price = order_itself.equipment.hourly_price * renting_time
+            print(total_price)
             address = order_itself.address
             data["order_price"] = total_price
             data["notes"] = data["notes"]
@@ -77,12 +79,13 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             orderjon = Order.objects.get(id=data["id"])
             orderjon.start_time = parse_datetime(start_time)
             orderjon.end_time = parse_datetime(end_time)
+            # orderjon.price=total_price
             # orderjon.save()
             send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
+            print(data)
             return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     order_id = openapi.Parameter(
         'order_id', in_=openapi.IN_FORM,
         description='enter order ID',

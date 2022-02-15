@@ -19,7 +19,7 @@ from equipments.views import BasicPagination
 # Create your views here.
 
 class CustomerProfileAPI(APIView, PaginationHandlerMixin):
-    permission_classes = [IsAuthenticated, ]
+    # permission_classes = [IsAdminUser, ]
     parser_classes = [MultiPartParser, FormParser]
     pagination_class = BasicPagination
 
@@ -28,11 +28,17 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
         description='enter access token with Bearer word for example: Bearer token',
         type=openapi.TYPE_STRING
     )
+    ordering = openapi.Parameter(
+        'ordering', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING,
+        description='Enter field name to order for example: "order_name" ascending; '
+                    'put "-" for reverse ordering: "-order_name"'
+    )
 
-    @swagger_auto_schema(manual_parameters=[param_config])
+    # @swagger_auto_schema(manual_parameters=[param_config])
+    @swagger_auto_schema(manual_parameters=[param_config,ordering])
     def get(self, request):
         customers = CustomerProfile.objects.all()
-        # print(customers)
+        print(customers.values())
         page = self.paginate_queryset(customers)
         serializer = CustomerSerializer(page, many=True)
         # print(serializer.data)
@@ -43,7 +49,7 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
             serializer = self.get_paginated_response(
                 self.serializer_class(page, many=True).data
             )
-        # print(f"serializer.data   {serializer.data}")
+        print(f"serializer.data   {serializer.data}")
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     profile_id = openapi.Parameter(
