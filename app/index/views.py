@@ -242,7 +242,6 @@ class Reset_New_Password(APIView):
     def post(self, request):
         password = request.data['password']
         pre_password = request.data['pre_password']
-        print(password)
         user_id = request.data['user_id']
         user = User.objects.get(id=user_id)
         if pre_password == password:
@@ -271,10 +270,9 @@ class UserEditAPI(APIView):
         user = request.user
         data = request.data
         user_itself = User.objects.get(id=user.id)
-
-        user_serializer = UserSerializer(user_itself, many=False, data=request.data)
+        user_serializer = UserSerializer(user_itself, many=False, data=data)
         if user_serializer.is_valid():
             user_serializer.save()
-            return Response(data=user_serializer.data, status=status.HTTP_200_OK)
+            return Response(user_serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(data=user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

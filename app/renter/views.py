@@ -191,11 +191,11 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
         renter_p_id = request.data["renter_product_id"]
         renter_p = RenterProduct.objects.get(id=renter_p_id)
         serializer = RenterProductSerializer(renter_p, many=False, data=request.data)
-        user_type = renter_p.renter.user.user_type
-        if serializer.is_valid() and user_type <= 3:
+        # user_type = renter_p.renter.user.user_type
+        if serializer.is_valid():
             serializer.save()
-            return Response({"details": "renter product updated"}, serializer.data, status=status.HTTP_200_OK)
-        return Response({"details": "renter product not updated"}, serializer.errors,
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(manual_parameters=[renter_product_id, param_config])
