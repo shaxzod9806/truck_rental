@@ -66,8 +66,8 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             #  This should be function outside of view
             start_time = data["start_time"]
-            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-            print(start_time)
+            # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            # print(start_time)
             end_time = data["end_time"]
             renting_time = renting_time_calc(start_time, end_time)
             total_price = order_itself.equipment.hourly_price * renting_time
@@ -82,7 +82,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             # orderjon.price=total_price
             # orderjon.save()
             send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
-            print(data)
+            # print(data)
             return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -133,12 +133,12 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, ordering])
     def get(self, request):
-        print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        # print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
         orders = Order.objects.filter(customer=request.user)
-        print(orders)
+        # print(orders)
         page = self.paginate_queryset(orders)
         serializer = OrderSerializer(page, many=True, context={"request": request})
-        print(serializer.data)
+        # print(serializer.data)
         if page is not None:
             serializer = self.get_paginated_response(
                 OrderSerializer(page, many=True, context={"request": request}).data)
