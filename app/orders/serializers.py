@@ -11,7 +11,22 @@ class OrderSerializer(serializers.ModelSerializer):
     customer_email = serializers.SerializerMethodField("get_customer_email")
     equipment_name = serializers.SerializerMethodField("get_equipment_name")
     status = serializers.SerializerMethodField(read_only=True)
+    # equipment_image = serializers.SerializerMethodField("get_equipment_image")
+    equipment_image_url = serializers.SerializerMethodField("get_equipment_image_url")
 
+    # def get_equipment_image(self, obj):
+    #     equipment = Equipment.objects.get(id=obj.equipment.id)
+    #     return equipment.image
+    # def get_photo_url(self, obj):
+    #     request = self.context.get('request')
+    #     photo_url = obj.image.url
+    #     return request.build_absolute_url(photo_url)
+
+    def get_equipment_image_url(self, obj):
+        request = self.context.get('request')
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        photo_url = equipment.image.url
+        return request.build_absolute_uri(photo_url)
 
     def get_customer_name(self, obj):
         user = User.objects.get(id=obj.customer.id)
@@ -39,7 +54,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["id","customer", 'customer_name', "equipment", "equipment_name",
+        fields = ["id", "customer", 'customer_name', "equipment", "equipment_name",
+                  "equipment_image_url",
                   "start_time", "end_time", "lat", "long", "address", "order_price",
                   "user_cancel", "status", "customer_phone", "customer_email",
                   "notes", "created_at", "updated_at"]
