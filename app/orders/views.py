@@ -49,7 +49,6 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
         if serializer.is_valid():
             serializer.save()
             data = serializer.data
-            # print(data)
             near_equipment = find_near_equipment(float(data["lat"]), float(data["long"]))
             profile_renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             order_itself = Order.objects.get(id=data["id"])
@@ -66,12 +65,9 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             #  This should be function outside of view
             start_time = data["start_time"]
-            # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-            # print(start_time)
             end_time = data["end_time"]
             renting_time = renting_time_calc(start_time, end_time)
             total_price = order_itself.equipment.hourly_price * renting_time
-            print(total_price)
             address = order_itself.address
             data["order_price"] = total_price
             data["notes"] = data["notes"]
@@ -79,10 +75,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             orderjon = Order.objects.get(id=data["id"])
             orderjon.start_time = parse_datetime(start_time)
             orderjon.end_time = parse_datetime(end_time)
-            # orderjon.price=total_price
-            # orderjon.save()
             send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
-            # print(data)
             return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -133,19 +126,15 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, ordering])
     def get(self, request):
-        # print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
         orders = Order.objects.filter(customer=request.user)
-        # print(orders)
         page = self.paginate_queryset(orders)
         serializer = OrderSerializer(page, many=True, context={"request": request})
-        # print(serializer.data)
         if page is not None:
             serializer = self.get_paginated_response(
                 OrderSerializer(page, many=True, context={"request": request}).data)
         else:
             serializer = self.get_paginated_response(
                 self.serializer_class(page, many=True, context={"request": request}).data)
-        print(f"serializer.data   {serializer.data}")
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -161,7 +150,6 @@ class SingleOrderAPI(APIView):
     def get(self, request, pk):
         order = Order.objects.get(id=pk)
         serializer = OrderSerializer(order, many=False, context={"request": request})
-        print(serializer.data)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -181,7 +169,6 @@ class OrderCancelAPI(APIView):
     @swagger_auto_schema(manual_parameters=[order_id, token])
     def post(self, request):
         order_id = request.GET.get('order_id')
-        print(order_id)
         order_itself = Order.objects.get(id=order_id)
         if not order_itself.renter:
             order_itself.user_cancel = True
@@ -212,9 +199,7 @@ class OrderAcceptAPI(APIView):
     def post(self, request):
         order_id = request.GET.get('order_id')
         is_accept = request.GET.get('is_accept')
-        print(order_id)
         renter = request.user
-        print(is_accept)
         order_itself = Order.objects.get(id=order_id)
         orderchecking_itself = OrderChecking.objects.get(order=order_id)
         if not order_itself.renter:
@@ -223,7 +208,6 @@ class OrderAcceptAPI(APIView):
             orderchecking_itself.renter = renter
             orderchecking_itself.save()
             order_itself.save()
-            print(orderchecking_itself.renter)
             return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already accepted renter"}, status=status.HTTP_400_BAD_REQUEST)

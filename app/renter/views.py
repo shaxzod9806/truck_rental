@@ -44,10 +44,8 @@ class RenterOrdersAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[token, ordering])
     def get(self, request):
         user_itself = request.user
-        # user_itself = User.objects.get(id=id_user)
         if user_itself.user_type == 3:
             order_checking_obj = OrderChecking.objects.filter(renter=user_itself)
-            # print(order_checking_obj.values())
             render_orders = []
             for i in range(order_checking_obj.count()):
                 render_orders += Order.objects.filter(id=order_checking_obj[i].order.id)
@@ -61,28 +59,33 @@ class RenterOrdersAPI(APIView, PaginationHandlerMixin):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserProfile(APIView):
+class UserProfile(APIView, PaginationHandlerMixin):
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
+    pagination_class = BasicPagination
     param_config = openapi.Parameter(
         'Authorization', in_=openapi.IN_HEADER,
         description='enter access token with Bearer word for example: Bearer token',
         type=openapi.TYPE_STRING
     )
 
-    @swagger_auto_schema(manual_parameters=[param_config], )
+    @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
-        # print('=============================================================')
-        user = request.user
-        profile = Profile.objects.all()
-        user_serializer = UserSerializer(user, many=True)
-        profile_serializer = ProfileSerializer(profile, many=True)
-        return Response(profile_serializer.data)
+        renters = Profile.objects.all()
+        page = self.paginate_queryset(renters)
+        serializer = ProfileSerializer(page, many=True)
+        if page is not None:
+            serializer = self.get_paginated_response(
+                ProfileSerializer(page, many=True).data)
+        else:
+            serializer = self.get_paginated_response(
+                self.serializer_class(page, many=True).data
+            )
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(request_body=ProfileSerializer, manual_parameters=[param_config])
     def put(self, request):
         user = request.user
-        print(request.data)
         profile = Profile.objects.get(user=user.id)
         profile_serializer = ProfileSerializer(profile, many=False, data=request.data)
         if profile_serializer.is_valid():
@@ -106,7 +109,6 @@ class ProfileRegister(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ProfileSerializer
     parser_classes = (MultiPartParser, FormParser)
-    # http_method_names = ['post']
 
     token = openapi.Parameter(
         "Authorization", in_=openapi.IN_HEADER,
@@ -118,10 +120,7 @@ class ProfileRegister(APIView):
                          request_body=ProfileSerializer)
     def post(self, request):
         data = request.data
-        # try:
         user = User.objects.get(id=data["user"])
-        # user.user_type = 3
-        print(user.user_type)
         profile = Profile.objects.create(
             organization=data["organization"],
             office_address=data["office_address"],
@@ -131,12 +130,6 @@ class ProfileRegister(APIView):
         )
         serializer = ProfileSerializer(profile, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    # except:
-    #     message = {'detail': "Something went Wrong"}
-
-
-#     return Response(message, status=status.HTTP_400_BAD_REQUEST)
-
 
 # =============================RenterProduct=================================================================
 
@@ -157,10 +150,8 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
         user_id = request.user.id
         renter_id = Profile.objects.get(user=user_id)
         renter_products = RenterProduct.objects.filter(renter=renter_id)
-        # print(renter_products)
         page = self.paginate_queryset(renter_products)
         serializer = RenterProductSerializer(page, many=True)
-        # print(serializer.data)
         if page is not None:
             serializer = self.get_paginated_response(
                 RenterProductSerializer(page, many=True).data)
@@ -168,7 +159,6 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
             serializer = self.get_paginated_response(
                 self.serializer_class(page, many=True)
             )
-        print(serializer.data)
         return Response(serializer.data)
 
     @swagger_auto_schema(manual_parameters=[param_config], parser_classes=parser_classes,
@@ -191,7 +181,6 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
         renter_p_id = request.data["renter_product_id"]
         renter_p = RenterProduct.objects.get(id=renter_p_id)
         serializer = RenterProductSerializer(renter_p, many=False, data=request.data)
-        # user_type = renter_p.renter.user.user_type
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

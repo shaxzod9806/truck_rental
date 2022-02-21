@@ -38,10 +38,8 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[param_config,ordering])
     def get(self, request):
         customers = CustomerProfile.objects.all()
-        print(customers.values())
         page = self.paginate_queryset(customers)
         serializer = CustomerSerializer(page, many=True)
-        # print(serializer.data)
         if page is not None:
             serializer = self.get_paginated_response(
                 CustomerSerializer(page, many=True).data)
@@ -49,7 +47,6 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
             serializer = self.get_paginated_response(
                 self.serializer_class(page, many=True).data
             )
-        print(f"serializer.data   {serializer.data}")
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     profile_id = openapi.Parameter(
@@ -127,7 +124,6 @@ class RegionAPI(APIView):
 
     @swagger_auto_schema(manual_parameters=[country_id])
     def get(self, request):
-        print(request.GET.get("country_id"))
         regions = Region.objects.filter(country=request.GET.get("country_id"))
         serializer = RegionSerializer(regions, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
