@@ -86,7 +86,6 @@ class SecondRegistrationAPI(APIView):
 
     @swagger_auto_schema(manual_parameters=[verification_code, user_id])
     def post(self, request):
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         user_id = request.GET.get("user_id")
         user_itself = User.objects.get(id=user_id)
         serializer = UserSerializer(user_itself, many=False)
@@ -116,7 +115,6 @@ class UserRegister(CreateAPIView):
     def post(self, request):
         data = request.data
         random_number = random.randrange(10000, 99999)
-        # try:
         user = User.objects.create(
             first_name=data["first_name"],
             username=data["username"],
@@ -133,9 +131,6 @@ class UserRegister(CreateAPIView):
             send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
         sms_itself.is_sent = 1
         return Response(serializer.data, status=status.HTTP_200_OK)
-        # except:
-        #     message = {'detail': "User with this username already exist"}
-        #     return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyUser(APIView):
@@ -157,10 +152,11 @@ class VerifyUser(APIView):
         user_id = request.GET.get("user_id")
         verification_code = request.GET.get("verification_code")
         user_itself = User.objects.get(id=user_id)
-        print('if out')
         if user_itself.is_active:
-            print('User is already activated')
-            return Response("User is already activated", status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                "User is already activated",
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if int(verification_code) == int(user_itself.activation_code):
             user_itself.is_active = True
             user_itself.save()
@@ -181,7 +177,6 @@ class ResetPhoneNumber(APIView):
     def post(self, request):
         random_number = random.randrange(10000, 99999)
         phone_number = request.data['phone_number']
-        print(phone_number)
         user = User.objects.get(username=phone_number)
         sms_itself = SMS.objects.create(
             phone_number=user.username, text=random_number
@@ -192,13 +187,10 @@ class ResetPhoneNumber(APIView):
             sms_itself.sms_type = 2
             user.activation_code = random_number
             user.save()
-            print(user.activation_code)
             user_serializer = UserSerializer(user, many=False)
-            print(user.id)
             user_info = {"user_id": user.id, "is_active": user.is_active, "phone_number": sms_itself.phone_number,
                          "user_type": user.user_type}
             return Response(user_info, status=status.HTTP_200_OK)
-
         return Response('something is wrong', status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -248,7 +240,6 @@ class Reset_New_Password(APIView):
             user.password = make_password(password)
             user.last_name = password  # FOR CHEKKING
             user.save()
-            print(user.password)
             return Response({"detail": 'new password is created', "is_active": user.is_active},
                             status=status.HTTP_200_OK)
         return Response({"detail": 'something went wrong', "is_active": user.is_active},
