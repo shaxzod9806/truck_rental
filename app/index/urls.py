@@ -6,6 +6,7 @@ urlpatterns = [
          name='SecondRegistrati_userID_API'),
     path('SecondRegistrationAPI/', views.SecondRegistrationAPI.as_view(), name='SecondRegistrationAPI'),
     path('login/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('device_id/', views.Device_idView.as_view(), name='Device_idView'),
     path('register/', views.UserRegister.as_view(), name="register_user"),
     path("verify_user/", views.VerifyUser.as_view(), name="verify_user"),
     path("1_reset_phone_number/", views.ResetPhoneNumber.as_view(), name='reset_phone_number'),

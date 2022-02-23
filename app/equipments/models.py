@@ -8,6 +8,8 @@ upload_path_brand = 'equipments/brands'
 
 class Brand(models.Model):
     brand_name = models.CharField(max_length=255, null=True)
+    description = models.TextField(null=True)
+    status = models.BooleanField(default=True)
     brand_image = models.ImageField(upload_to=upload_path_brand, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

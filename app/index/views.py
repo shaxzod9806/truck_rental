@@ -28,12 +28,30 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data["last_name"] = self.user.last_name
         data["user_id"] = self.user.id
         data["is_active"] = self.user.is_active
+        data["device_id"] = self.user.device_id
 
         return data
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+class Device_idView(APIView):
+    # permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+    user_id = openapi.Parameter('user_id', openapi.IN_FORM, description="user_id", type=openapi.TYPE_INTEGER)
+    device_id = openapi.Parameter('device_id', openapi.IN_FORM, description="device_id", type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[user_id, device_id])
+    def post(self, request):
+        user_itself = User.objects.get(id=request.data['user_id'])
+        device_id = request.data.get('device_id')
+        user_device_id = user_itself.device_id
+        if user_device_id == device_id:
+            return Response({"message": "Device id is correct"}, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class SecondRegistration_userID_API(APIView):
@@ -110,6 +128,7 @@ class UserRegister(CreateAPIView):
             'username': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'password': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'user_type': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
+            'device_id': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
         }
     ))
     def post(self, request):
@@ -121,7 +140,8 @@ class UserRegister(CreateAPIView):
             password=make_password(data["password"]),
             user_type=data["user_type"],
             is_active=False,
-            activation_code=random_number
+            activation_code=random_number,
+            device_id=data["device_id"]
         )
         serializer = UserSerializer(user, many=False)
         sms_itself = SMS.objects.create(phone_number=user.username,

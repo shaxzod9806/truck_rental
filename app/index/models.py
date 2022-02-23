@@ -18,3 +18,5 @@ class User(AbstractUser):
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, default=4)
     activation_code = models.IntegerField(null=True, blank=True)
     device_id = models.CharField(max_length=255, null=True)
+
+
