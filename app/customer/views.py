@@ -18,6 +18,7 @@ from equipments.views import BasicPagination
 
 # Create your views here.
 
+
 class CustomerProfileAPI(APIView, PaginationHandlerMixin):
     # permission_classes = [IsAdminUser, ]
     parser_classes = [MultiPartParser, FormParser]
@@ -35,7 +36,7 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
     )
 
     # @swagger_auto_schema(manual_parameters=[param_config])
-    @swagger_auto_schema(manual_parameters=[param_config,ordering])
+    @swagger_auto_schema(manual_parameters=[param_config, ordering])
     def get(self, request):
         customers = CustomerProfile.objects.all()
         page = self.paginate_queryset(customers)
