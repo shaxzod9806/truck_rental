@@ -19,4 +19,3 @@ class User(AbstractUser):
     activation_code = models.IntegerField(null=True, blank=True)
     device_id = models.CharField(max_length=255, null=True)
 
-
