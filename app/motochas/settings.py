@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'index.apps.IndexConfig',
     'equipments.apps.EquipmentsConfig',
     # Installed apps
+    "manager.apps.ManagerConfig",
     'rest_framework',
     'corsheaders',
     'drf_yasg',
