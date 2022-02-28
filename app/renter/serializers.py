@@ -11,7 +11,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'device_id', 'is_active', 'username', 'email', 'first_name', 'last_name', 'user_type', 'token')
+        fields = (
+            'id', 'device_id', 'is_active', 'username', 'email', 'first_name', 'last_name', 'user_type',
+            'token')
 
     def get_token(self, obj):
         token = AccessToken.for_user(obj)
@@ -21,10 +23,18 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     country_name = serializers.SerializerMethodField("get_country_name")
     region_name = serializers.SerializerMethodField("get_region_name")
+    image_url = serializers.SerializerMethodField("get_image_url")
 
     class Meta:
         model = Profile
-        fields = ["id", "organization", "office_address", "user", "country", "country_name", "region", "region_name"]
+        fields = ["id", "profile_image", "image_url", "organization", "office_address", "user", "country",
+                  "country_name", "region",
+                  "region_name"]
+
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        image_url = obj.profile_image.url
+        return request.build_absolute_uri(image_url)
 
     def get_country_name(self, obj):
         country = Country.objects.get(id=obj.country_id)

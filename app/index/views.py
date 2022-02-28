@@ -258,7 +258,6 @@ class Reset_New_Password(APIView):
         user = User.objects.get(id=user_id)
         if pre_password == password:
             user.password = make_password(password)
-            user.last_name = password  # FOR CHEKKING
             user.save()
             return Response({"detail": 'new password is created', "is_active": user.is_active},
                             status=status.HTTP_200_OK)
@@ -287,3 +286,37 @@ class UserEditAPI(APIView):
             return Response(user_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Change_new_password(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    serializers = UserSerializer
+    token = openapi.Parameter(
+        "Authorization", in_=openapi.IN_HEADER,
+        description="enter access token with Bearer word for example: Bearer token",
+        type=openapi.TYPE_STRING
+    )
+    old_password = openapi.Parameter('old_password', openapi.IN_FORM, description="old_password",
+                                     type=openapi.TYPE_STRING)
+    new_password = openapi.Parameter('new_password', openapi.IN_FORM, description="new_password",
+                                     type=openapi.TYPE_STRING)
+    pre_password = openapi.Parameter('pre_password', openapi.IN_FORM, description="pre_password",
+                                     type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[token, old_password, new_password, pre_password])
+    def post(self, request):
+        user = request.user
+        user_itself = User.objects.get(id=user.id)
+        if user_itself.check_password(request.data['old_password']):
+            if request.data['pre_password'] == request.data['new_password']:
+                user_itself.set_password(request.data['new_password'])
+                user_itself.save()
+                return Response({"detail": 'new password is created'},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": 'new password is not correct'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"detail": 'old password is not correct'},
+                            status=status.HTTP_400_BAD_REQUEST)

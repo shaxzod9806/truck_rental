@@ -1,6 +1,8 @@
 from django.db import models
 from index.models import User
 
+upload_path = 'users'
+
 
 # Create your models here.
 class Country(models.Model):
@@ -24,6 +26,7 @@ class CustomerProfile(models.Model):
     region = models.ForeignKey(Region, null=True, on_delete=models.CASCADE)
     customer_address = models.CharField(max_length=255, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    customer_image = models.ImageField(upload_to=upload_path, null=True)
 
     def __str__(self):
         return self.phone_number

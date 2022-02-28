@@ -172,7 +172,7 @@ class CategoryAPI(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, lang, ordering])
     def get(self, request):
-        category = Category.objects.all()
+        category = Category.objects.all().order_by('-id')
         page = self.paginate_queryset(category)
         lang = request.GET.get("lang")
 
@@ -284,7 +284,7 @@ class SubCatApi(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, lang, ordering])
     def get(self, request):
-        sub_category = SubCategory.objects.all()
+        sub_category = SubCategory.objects.all().order_by('-id')
         page = self.paginate_queryset(sub_category)
         lang = request.GET.get("lang")
 
@@ -397,7 +397,7 @@ class EquipmentAPI(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, lang, ordering])
     def get(self, request):
-        equipment = Equipment.objects.all()
+        equipment = Equipment.objects.all().order_by('-id')
         page = self.paginate_queryset(equipment)
         lang = request.GET.get("lang")
         # filter = ProductFilter(request.GET, queryset=Product.objects.all())
@@ -483,7 +483,7 @@ class AdditionsApi(APIView):
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
-        addition = AdditionalProps.objects.all()
+        addition = AdditionalProps.objects.all().order_by("-id")
         serializer = AdditionsSerializer(addition, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -552,7 +552,7 @@ class CategoryGetOne(generics.RetrieveAPIView):
 
 
 class CategoryList(generics.ListAPIView):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('-id')
     serializer_class = CategorySerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
     filterset_fields = ['name_uz', 'name_ru', 'name_en']
@@ -570,7 +570,7 @@ class SubCategoryGetOne(generics.RetrieveAPIView):
 
 
 class SubCategoryList(generics.ListAPIView):
-    queryset = SubCategory.objects.all()
+    queryset = SubCategory.objects.all().order_by('-id')
     serializer_class = SubCatSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
     filterset_fields = ['name_uz', 'name_ru', 'name_en', "category"]
@@ -588,7 +588,7 @@ class EquipmentGetOne(generics.RetrieveAPIView):
 
 
 class EquipmentList(generics.ListAPIView):
-    queryset = Equipment.objects.all()
+    queryset = Equipment.objects.all().order_by('-id')
     serializer_class = EquipmentsSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
     filterset_fields = ['name_uz', 'name_ru', 'name_en', "sub_category", "category", "brand"]
