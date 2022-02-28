@@ -18,7 +18,7 @@ from renter.models import RenterProduct
 from datetime import timedelta
 from utilities.models import SMS
 from utilities.sms import send_sms
-from utilities.sms import send_confirm_sms
+from utilities.sms import send_confirm_sms, send_accepted_sms
 from utilities.price_calculation import renting_time_calc
 from equipments.views import BasicPagination
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
@@ -61,24 +61,24 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             )
             checking_order.checking_end = checking_order.checking_start + timedelta(minutes=15)
             checking_order.save()
-            # Notify the user
+            # Notify the user about the order
             renter = renter_profile.objects.get(id=near_equipment["renter_id"])
             #  This should be function outside of view
             start_time = data["start_time"]
             end_time = data["end_time"]
-            renting_time = renting_time_calc(start_time, end_time)
-            total_price = order_itself.equipment.hourly_price * renting_time
-            address = order_itself.address
-            data["order_price"] = total_price
+            order_price = data["order_price"]
+            address = data["address"]
+            data["order_price"] = data["order_price"]
             data["notes"] = data["notes"]
             data["renter"] = renter.id
             orderjon = Order.objects.get(id=data["id"])
             orderjon.start_time = parse_datetime(start_time)
             orderjon.end_time = parse_datetime(end_time)
-            send_confirm_sms(renter, SMS, start_time, end_time, total_price, address)
+            send_confirm_sms(renter, SMS, start_time, end_time, order_price, address)
             return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     order_id = openapi.Parameter(
         'order_id', in_=openapi.IN_FORM,
         description='enter order ID',
@@ -126,7 +126,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, ordering])
     def get(self, request):
-        orders = Order.objects.filter(customer=request.user)
+        orders = Order.objects.filter(customer=request.user).order_by('-id')
         page = self.paginate_queryset(orders)
         serializer = OrderSerializer(page, many=True, context={"request": request})
         if page is not None:
@@ -198,7 +198,7 @@ class OrderAcceptAPI(APIView):
     @swagger_auto_schema(manual_parameters=[order_id, token, is_accept])
     def post(self, request):
         order_id = request.GET.get('order_id')
-        is_accept = request.GET.get('is_accept')
+        is_accept = int(request.GET.get('is_accept'))
         renter = request.user
         order_itself = Order.objects.get(id=order_id)
         orderchecking_itself = OrderChecking.objects.get(order=order_id)
@@ -208,6 +208,16 @@ class OrderAcceptAPI(APIView):
             orderchecking_itself.renter = renter
             orderchecking_itself.save()
             order_itself.save()
-            return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
+            if is_accept == 3:
+                send_accepted_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
+                                  order_itself.order_price, order_itself.address)
+                return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
+            # else:
+            #     find_near_equipment(order_itself)
+            #     find_list_of_renters = []
+            #
+            #     request = request
+            #     return post(request)
+
         else:
             return Response({"details": "there is already accepted renter"}, status=status.HTTP_400_BAD_REQUEST)

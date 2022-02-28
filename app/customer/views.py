@@ -40,7 +40,7 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
     def get(self, request):
         customers = CustomerProfile.objects.all()
         page = self.paginate_queryset(customers)
-        serializer = CustomerSerializer(page, many=True)
+        serializer = CustomerSerializer(page, many=True, context={'request': request})
         if page is not None:
             serializer = self.get_paginated_response(
                 CustomerSerializer(page, many=True).data)
@@ -59,7 +59,8 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[param_config, profile_id], request_body=CustomerSerializer)
     def put(self, request):
         customer_profile = CustomerProfile.objects.get(id=request.data["profile_id"])
-        customer_profile_serializer = CustomerSerializer(customer_profile, many=False, data=request.data)
+        customer_profile_serializer = CustomerSerializer(customer_profile, many=False, data=request.data,
+                                                         context={'request': request})
         if customer_profile_serializer.is_valid():
             customer_profile_serializer.save()
             return Response(customer_profile_serializer.data, status=status.HTTP_200_OK)
@@ -93,15 +94,20 @@ class CustomerRegisterAPI(CreateAPIView):
         user = User.objects.get(id=request.data["user"])
         country = Country.objects.get(id=request.data["country"])
         region = Region.objects.get(id=request.data["region"])
-        customer = CustomerProfile.objects.create(
-            phone_number=data["phone_number"],
-            country=country,
-            region=region,
-            customer_address=data["customer_address"],
-            user=user
-        )
-        serializer = CustomerSerializer(customer, many=False)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # customer = CustomerProfile.objects.create(
+        #     phone_number=data["phone_number"],
+        #     country=country,
+        #     region=region,
+        #     customer_address=data["customer_address"],
+        #     user=user
+        #
+        # )
+        serializer = CustomerSerializer(data=request.data, many=False, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CountryAPI(APIView):

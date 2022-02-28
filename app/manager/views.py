@@ -36,11 +36,6 @@ class RegisterManagerAPIView(APIView):
         data = request.data
         user_itself = request.user
         if data["password"] == data["pre_password"]:
-            # manager = ManagerProfile.objects.create(
-            #     user=user_itself,
-            #     image=null,
-            #     bio="bio",
-            # )
             serializer = ManagerSerializer(data=data, many=False)
             if serializer.is_valid():
                 serializer.save()
@@ -91,3 +86,21 @@ class ManagerAPIView(APIView, PaginationHandlerMixin):
             return Response(status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class SingleManagerAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ManagerSerializer
+    parser_classes = (MultiPartParser, FormParser)
+    token = openapi.Parameter('Authorization', openapi.IN_HEADER, description="Bearer <token>",
+                              type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[token])
+    def get(self, request):
+        try:
+            user_itself = request.user
+            manager = ManagerProfile.objects.get(user=user_itself)
+            serializer = ManagerSerializer(manager)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response("manager not found", status=status.HTTP_400_BAD_REQUEST)

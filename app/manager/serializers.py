@@ -5,6 +5,6 @@ from .models import ManagerProfile
 class ManagerSerializer(serializers.ModelSerializer):
     class Meta:
         model = ManagerProfile
-        fields = ('id',"user","image","bio")
+        fields = ('id',"user","image")
 
 

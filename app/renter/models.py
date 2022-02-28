@@ -3,7 +3,8 @@ from index.models import User
 from equipments.models import Equipment, Category, SubCategory
 from customer.models import Region, Country
 
-upload_path = 'renters/documents/'
+upload_path = "equipments/"
+upload_path_image = 'users/renters'
 
 
 class Profile(models.Model):
@@ -12,6 +13,7 @@ class Profile(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)
     region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True)
     user = models.OneToOneField(User, on_delete=models.PROTECT)
+    profile_image = models.ImageField(upload_to=upload_path_image, null=True, blank=True)
 
     # files = models.ForeignKey(Files, on_delete=models.PROTECT)
 
@@ -33,6 +35,7 @@ class RenterProduct(models.Model):
     longitude = models.FloatField()
     address_name = models.CharField(max_length=255)
     renter = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    renter_photo = models.ImageField(upload_to=upload_path_image, null=True, blank=True)
 
     def __str__(self):
         return self.equipment.name_uz
