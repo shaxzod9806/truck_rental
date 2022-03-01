@@ -71,15 +71,17 @@ class UserProfile(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
-        renters = Profile.objects.all().order_by('-id')
+        renters = Profile.objects.all()
+        print(renters)
         page = self.paginate_queryset(renters)
-        serializer = ProfileSerializer(page, many=True)
+        serializer = ProfileSerializer(page, many=True,context={"request": request})
+        print(serializer.data)
         if page is not None:
             serializer = self.get_paginated_response(
-                ProfileSerializer(page, many=True).data)
+                ProfileSerializer(page, many=True, context={"request": request}).data)
         else:
             serializer = self.get_paginated_response(
-                self.serializer_class(page, many=True).data
+                self.serializer_class(page, many=True, context={"request": request}).data
             )
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -166,8 +168,8 @@ class RentrProductAPI(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
         user_id = request.user.id
-        renter_id = Profile.objects.get(user=user_id).order_by('-id')
-        renter_products = RenterProduct.objects.filter(renter=renter_id)
+        renter_id = Profile.objects.get(user=user_id)
+        renter_products = RenterProduct.objects.filter(renter=renter_id).order_by('-id')
         page = self.paginate_queryset(renter_products)
         serializer = RenterProductSerializer(page, many=True,context={'request': request})
         if page is not None:

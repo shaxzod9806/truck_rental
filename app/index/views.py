@@ -320,3 +320,21 @@ class Change_new_password(APIView):
         else:
             return Response({"detail": 'old password is not correct'},
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class SingleUserAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    serializers = UserSerializer
+    token = openapi.Parameter(
+        "Authorization", in_=openapi.IN_HEADER,
+        description="enter access token with Bearer word for example: Bearer token",
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(manual_parameters=[token])
+    def get(self, request):
+        user_id = request.user.id
+        user_itself = User.objects.get(id=user_id)
+        user_serializer = UserSerializer(user_itself, many=False)
+        return Response(user_serializer.data, status=status.HTTP_200_OK)

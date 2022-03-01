@@ -13,5 +13,6 @@ urlpatterns = [
     path("2_ResetVerifyUserCode/", views.ResetVerifyUserCode.as_view(), name='reset_verify_user_code'),
     path('3_Reset_New_Password/', views.Reset_New_Password.as_view(), name='reset_new_password'),
     path("user_edit/", views.UserEditAPI.as_view(), name='user_edit'),
+    path("user_get/", views.SingleUserAPI.as_view(), name='user_get'),
     path("change_new_password/", views.Change_new_password.as_view(), name='change_new_password'),
 ]
