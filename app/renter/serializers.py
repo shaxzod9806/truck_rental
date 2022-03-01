@@ -33,7 +33,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         request = self.context.get('request')
+        print(request)
         image_url = obj.profile_image.url
+        print(image_url)
         return request.build_absolute_uri(image_url)
 
     def get_country_name(self, obj):

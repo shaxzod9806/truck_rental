@@ -16,7 +16,6 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         request = self.context.get("request")
-        print(request)
         photo_url = obj.customer_image.url
         return request.build_absolute_uri(photo_url)
 

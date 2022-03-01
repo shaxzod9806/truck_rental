@@ -90,19 +90,6 @@ class CustomerRegisterAPI(CreateAPIView):
 
     @swagger_auto_schema(manual_parameters=[token], request_body=CustomerSerializer, )
     def post(self, request):
-        data = request.data
-        user = User.objects.get(id=request.data["user"])
-        country = Country.objects.get(id=request.data["country"])
-        region = Region.objects.get(id=request.data["region"])
-
-        # customer = CustomerProfile.objects.create(
-        #     phone_number=data["phone_number"],
-        #     country=country,
-        #     region=region,
-        #     customer_address=data["customer_address"],
-        #     user=user
-        #
-        # )
         serializer = CustomerSerializer(data=request.data, many=False, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -133,4 +120,20 @@ class RegionAPI(APIView):
     def get(self, request):
         regions = Region.objects.filter(country=request.GET.get("country_id"))
         serializer = RegionSerializer(regions, many=True, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SingleCustomerAPI(APIView):
+    permission_classes = (IsAuthenticated,)
+    parser_classes = [MultiPartParser, FormParser]
+    token = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(manual_parameters=[token])
+    def get(self, request):
+        customer = CustomerProfile.objects.get(user=request.user)
+        serializer = CustomerSerializer(customer, many=False, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
