@@ -135,5 +135,6 @@ class SingleCustomerAPI(APIView):
     @swagger_auto_schema(manual_parameters=[token])
     def get(self, request):
         customer = CustomerProfile.objects.get(user=request.user)
+
         serializer = CustomerSerializer(customer, many=False, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
