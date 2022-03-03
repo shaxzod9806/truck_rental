@@ -70,9 +70,10 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             address = data["address"]
             data["order_price"] = data["order_price"]
             data["notes"] = data["notes"]
+            data["quantity"] = data["quantity"]
             # data["renter"] = renter.id
-            data["renter"] = null
             print(data)
+            data["renter"] = None
             orderjon = Order.objects.get(id=data["id"])
             orderjon.start_time = parse_datetime(start_time)
             orderjon.end_time = parse_datetime(end_time)
