@@ -13,6 +13,7 @@ class OrderSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField(read_only=True)
     # equipment_image = serializers.SerializerMethodField("get_equipment_image")
     equipment_image_url = serializers.SerializerMethodField("get_equipment_image_url")
+    renter_phone = serializers.SerializerMethodField("get_renter_phone")
 
     # def get_equipment_image(self, obj):
     #     equipment = Equipment.objects.get(id=obj.equipment.id)
@@ -51,10 +52,18 @@ class OrderSerializer(serializers.ModelSerializer):
             status = OrderChecking.objects.get(order=obj).confirmed
         return status
 
+    def get_renter_phone(self, obj):
+        try:
+            request = self.context.get('request')
+            renter_phone = User.objects.get(id=obj.renter.id).username
+            return renter_phone
+        except:
+            return None
+
     class Meta:
         model = Order
-        fields = ["id", "customer", 'customer_name', "equipment", "equipment_name",
-                  "equipment_image_url",
+        fields = ["id", "customer", 'customer_name', "renter", "renter_phone", "equipment", "equipment_name",
+                  "equipment_image_url", "quantity",
                   "start_time", "end_time", "lat", "long", "address", "order_price",
                   "user_cancel", "status", "customer_phone", "customer_email",
                   "notes", "created_at", "updated_at"]

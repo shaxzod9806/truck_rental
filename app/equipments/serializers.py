@@ -10,7 +10,7 @@ class BrandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Brand
-        fields = ('id', 'brand_name',"description", 'brand_image', 'created_at', 'updated_at')
+        fields = ('id', 'brand_name', "description", 'brand_image', 'created_at', 'updated_at')
 
         def get_photo_url(self, obj):
             request = self.context.get('request')
@@ -89,22 +89,22 @@ class CategorySerializerEn(serializers.ModelSerializer):
 
 
 class SubCatSerializer(serializers.ModelSerializer):
-    photo_url = serializers.SerializerMethodField('get_photo_url')
+    # photo_url = serializers.SerializerMethodField('get_photo_url')
     category_name = serializers.SerializerMethodField('get_category_name')
 
     def get_category_name(self, obj):
         cat = Category.objects.get(id=obj.category.id)
         return cat.name_ru
 
-    def get_photo_url(self, obj):
-        request = self.context.get('request')
-        photo_url = obj.image.url
-        return request.build_absolute_uri(photo_url)
+    # def get_photo_url(self, obj):
+    #     request = self.context.get('request')
+    #     photo_url = obj.image.url
+    #     return request.build_absolute_uri(photo_url)
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name_uz', 'name_ru', 'name_en', 'image', 'description_uz', 'description_ru', 'description_en',
-                  'photo_url',
+        fields = ['id', 'name_uz', 'name_ru', 'name_en', 'description_uz', 'description_ru', 'description_en',
+                  # 'photo_url',
                   'category_name',
                   'category', 'created_at', 'updated_at',
                   'created_by', 'updated_by']
@@ -129,7 +129,7 @@ class SubCatSerializerUz(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'description', 'image', 'category', 'category_name', 'created_at', 'updated_at',
+        fields = ['id', 'name', 'description', 'category', 'category_name', 'created_at', 'updated_at',
                   'created_by',
                   'updated_by']
 
@@ -153,7 +153,7 @@ class SubCatSerializerRu(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'description', 'image', 'category', 'category_name',
+        fields = ['id', 'name', 'description', 'category', 'category_name',
                   'created_at', 'updated_at',
                   'created_by',
                   'updated_by']
@@ -169,16 +169,22 @@ class SubCatSerializerEn(serializers.ModelSerializer):
         return cat.name_en
 
     def description_en(self, obj):
-        description = obj.description_en
+        try:
+            description = obj.description_en
+        except:
+            description = ''
         return description
 
     def name_en(self, obj):
-        name = obj.name_en
+        try:
+            name = obj.name_en
+        except:
+            name = None
         return name
 
     class Meta:
         model = SubCategory
-        fields = ['id', 'name', 'description', 'image', 'category', 'category_name', 'created_at', 'updated_at',
+        fields = ['id', 'name', 'description', 'category', 'category_name', 'created_at', 'updated_at',
                   'created_by',
                   'updated_by']
 
@@ -208,10 +214,16 @@ class EquipmentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['id', 'name_uz', 'name_ru', 'name_en', 'image', 'photo_url',
+        fields = ['id', 'name_uz', 'name_ru', 'name_en',
+                  "description_uz","description_ru","description_en",
+                    'image', 'photo_url',
                   'brand', 'brand_name',
                   'category_name', 'category', 'sub_category_name', 'sub_category',
-                  'created_at', 'updated_at', 'created_by', 'updated_by', 'hourly_price', "hourly_price_night"]
+                  'created_at', 'updated_at', 'created_by', 'updated_by', 'hourly_price', "hourly_price_night",
+                  "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
+                  "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
+                  "zagruzka_bunker"
+                  ]
 
 
 class EquipmentsSerializerUz(serializers.ModelSerializer):
@@ -220,7 +232,7 @@ class EquipmentsSerializerUz(serializers.ModelSerializer):
     sub_category_name = serializers.SerializerMethodField('get_sub_category_name')
     description = serializers.SerializerMethodField('description_uz')
 
-    def description_en(self, obj):
+    def description_uz(self, obj):
         description = obj.description_uz
         return description
 
@@ -242,7 +254,11 @@ class EquipmentsSerializerUz(serializers.ModelSerializer):
                   'sub_category_name', 'created_at',
                   'updated_at',
                   'created_by',
-                  'updated_by']
+                  'updated_by',
+                  "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
+                  "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
+                  "zagruzka_bunker",
+                  ]
 
 
 class EquipmentsSerializerRu(serializers.ModelSerializer):
@@ -271,7 +287,11 @@ class EquipmentsSerializerRu(serializers.ModelSerializer):
         model = Equipment
         fields = ['id', 'name', 'description', 'image', 'category',
                   'category_name', 'sub_category', 'sub_category_name', 'created_at', 'updated_at', 'created_by',
-                  'updated_by']
+                  'updated_by',
+                  "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
+                  "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
+                  "zagruzka_bunker"
+                  ]
 
 
 class EquipmentsSerializerEn(serializers.ModelSerializer):
@@ -301,7 +321,12 @@ class EquipmentsSerializerEn(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'image', 'category_name', 'category', 'sub_category',
                   'sub_category_name', 'created_at',
                   'updated_at', 'created_by',
-                  'updated_by']
+                  'updated_by',
+                  "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
+                  "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
+                  "zagruzka_bunker"
+
+                  ]
 
 
 class AdditionsSerializer(serializers.ModelSerializer):

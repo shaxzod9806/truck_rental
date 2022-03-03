@@ -11,6 +11,7 @@ class Order(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer", null=True)  #
     renter = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="renter", blank=True)
     equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT, null=True)
+    quantity = models.IntegerField(default=1)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
     lat = models.CharField(max_length=255, null=True)

@@ -21,7 +21,7 @@ class Brand(models.Model):
 class Category(models.Model):
     name_uz = models.CharField(max_length=255)
     name_ru = models.CharField(max_length=255)
-    name_en = models.CharField(max_length=255)
+    name_en = models.CharField(max_length=255, null=True, blank=True)
     description_uz = models.TextField(blank=True)
     description_ru = models.TextField(blank=True)
     description_en = models.TextField(blank=True)
@@ -44,11 +44,11 @@ class Category(models.Model):
 class SubCategory(models.Model):
     name_uz = models.CharField(max_length=255)
     name_ru = models.CharField(max_length=255)
-    name_en = models.CharField(max_length=255)
+    name_en = models.CharField(max_length=255, null=True, blank=True)
     description_uz = models.TextField(blank=True)
     description_ru = models.TextField(blank=True)
-    description_en = models.TextField(blank=True)
-    image = models.ImageField(upload_to=upload_path, null=True, blank=True)
+    description_en = models.TextField(null=True, blank=True)
+    # image = models.ImageField(upload_to=upload_path, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -65,15 +65,37 @@ class SubCategory(models.Model):
         return self.name_ru
 
 
+# Асфальтоукладчик «XCMG» RP452L
+# Тип:	Колесный
+# Габариты мм: 	5218x2070x3590
+# Вес:	11500 кг
+# Мощность, кВт (л.с.) 	70 (95)
+# Ширина укладки:	от 2.0 до 4.5
+# Толщина укладки:	150 мм
+# Скорость укладки:  	13 м/мин
+# Скорость движения:	13 км/ч
+# Загрузка бункера:	12 т
+
+# quantity to order
 class Equipment(models.Model):
     name_uz = models.CharField(max_length=255)
     name_ru = models.CharField(max_length=255)
-    name_en = models.CharField(max_length=255)
+    name_en = models.CharField(max_length=255, null=True, blank=True)
     description_uz = models.TextField(blank=True)
     description_ru = models.TextField(blank=True)
-    description_en = models.TextField(blank=True)
+    description_en = models.TextField(null=True, blank=True)
     hourly_price = models.FloatField(null=True)
     hourly_price_night = models.FloatField(null=True)
+    tip = models.CharField(max_length=255, null=True)
+    gabarity_mm = models.CharField(max_length=255, null=True)
+    ves = models.CharField(max_length=255, null=True)
+    moshnost_kvt = models.CharField(max_length=255, null=True)
+    shirina_ukladki = models.CharField(max_length=255, null=True)
+    tolshina_ukladki = models.CharField(max_length=255, null=True)
+    skorost_ukladki = models.CharField(max_length=255, null=True)
+    skorost_dvizheniya = models.CharField(max_length=255, null=True)
+    zagruzka_bunker = models.CharField(max_length=255, null=True)
+
     image = models.ImageField(upload_to=upload_path, null=True)
     brand = models.ForeignKey(Brand, on_delete=models.PROTECT, null=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True)
@@ -96,10 +118,10 @@ class Equipment(models.Model):
 class AdditionalProps(models.Model):
     name_uz = models.CharField(max_length=255)
     name_ru = models.CharField(max_length=255)
-    name_en = models.CharField(max_length=255)
+    name_en = models.CharField(max_length=255, null=True, blank=True)
     value_uz = models.CharField(max_length=255)
     value_ru = models.CharField(max_length=255)
-    value_en = models.CharField(max_length=255)
+    value_en = models.CharField(max_length=255, null=True, blank=True)
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

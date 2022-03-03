@@ -134,6 +134,8 @@ class UserRegister(CreateAPIView):
     def post(self, request):
         data = request.data
         random_number = random.randrange(10000, 99999)
+        if len(data['password']) <= 8:
+            return Response({"message": "password must be more than 8 characters"}, status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.create(
             first_name=data["first_name"],
             username=data["username"],
