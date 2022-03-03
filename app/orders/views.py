@@ -70,7 +70,9 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             address = data["address"]
             data["order_price"] = data["order_price"]
             data["notes"] = data["notes"]
-            data["renter"] = renter.id
+            # data["renter"] = renter.id
+            data["renter"] = null
+            print(data)
             orderjon = Order.objects.get(id=data["id"])
             orderjon.start_time = parse_datetime(start_time)
             orderjon.end_time = parse_datetime(end_time)
@@ -212,12 +214,5 @@ class OrderAcceptAPI(APIView):
                 send_accepted_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
                                   order_itself.order_price, order_itself.address)
                 return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
-            # else:
-            #     find_near_equipment(order_itself)
-            #     find_list_of_renters = []
-            #
-            #     request = request
-            #     return post(request)
-
         else:
             return Response({"details": "there is already accepted renter"}, status=status.HTTP_400_BAD_REQUEST)
