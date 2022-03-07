@@ -66,4 +66,5 @@ class OrderSerializer(serializers.ModelSerializer):
                   "equipment_image_url","quantity",
                   "start_time", "end_time", "lat", "long", "address", "order_price",
                   "user_cancel", "status", "customer_phone", "customer_email",
-                  "notes", "created_at", "updated_at"]
+                  "notes", "created_at", "updated_at"
+                  ]
