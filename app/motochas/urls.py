@@ -25,7 +25,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Motochas API",
         default_version='v1',
-        description="Motochas project APIs collection",
+        description="Motochas project APIs collection a3qwGW4KHD",
         terms_of_service="/",
         contact=openapi.Contact(email="aabdurazzoqov1996@gmail.com"),
     ),

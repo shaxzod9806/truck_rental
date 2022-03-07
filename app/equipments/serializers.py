@@ -9,6 +9,7 @@ class BrandSerializer(serializers.ModelSerializer):
     photo_url = serializers.SerializerMethodField
 
     class Meta:
+        app_label = 'Brand'
         model = Brand
         fields = ('id', 'brand_name', "description", 'brand_image', 'created_at', 'updated_at')
 

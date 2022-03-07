@@ -65,17 +65,6 @@ class SubCategory(models.Model):
         return self.name_ru
 
 
-# Асфальтоукладчик «XCMG» RP452L
-# Тип:	Колесный
-# Габариты мм: 	5218x2070x3590
-# Вес:	11500 кг
-# Мощность, кВт (л.с.) 	70 (95)
-# Ширина укладки:	от 2.0 до 4.5
-# Толщина укладки:	150 мм
-# Скорость укладки:  	13 м/мин
-# Скорость движения:	13 км/ч
-# Загрузка бункера:	12 т
-
 # quantity to order
 class Equipment(models.Model):
     name_uz = models.CharField(max_length=255)
@@ -112,7 +101,7 @@ class Equipment(models.Model):
                                    )
 
     def __str__(self):
-        return self.name_ru
+        return self.name_ru or "no name ru"
 
 
 class AdditionalProps(models.Model):
