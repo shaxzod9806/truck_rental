@@ -125,6 +125,7 @@ class UserRegister(CreateAPIView):
         type=openapi.TYPE_OBJECT,
         properties={
             'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
+            'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'username': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'password': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'user_type': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
@@ -138,6 +139,7 @@ class UserRegister(CreateAPIView):
             return Response({"message": "password must be more than 8 characters"}, status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.create(
             first_name=data["first_name"],
+            last_name=data["last_name"],
             username=data["username"],
             password=make_password(data["password"]),
             user_type=data["user_type"],
