@@ -126,9 +126,12 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
         description='Enter field name to order for example: "cat_name" ascending; '
                     'put "-" for reverse ordering: "-cat_name"'
     )
+    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru', type=openapi.TYPE_STRING)
 
-    @swagger_auto_schema(manual_parameters=[param_config, ordering])
+    @swagger_auto_schema(manual_parameters=[param_config, ordering, lang])
     def get(self, request):
+        lang = request.GET.get('lang')
+        print(lang)
         orders = Order.objects.filter(customer=request.user).order_by('-id')
         page = self.paginate_queryset(orders)
         serializer = OrderSerializer(page, many=True, context={"request": request})
@@ -145,11 +148,11 @@ class SingleOrderAPI(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = OrderSerializer
     parser_classes = (MultiPartParser, FormParser)
-
+    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='uz, en, ru', type=openapi.TYPE_STRING)
     token = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                               description='enter access token', type=openapi.TYPE_STRING, )
 
-    @swagger_auto_schema(manual_parameters=[token], parser_classes=parser_classes)
+    @swagger_auto_schema(manual_parameters=[token, lang], parser_classes=parser_classes)
     def get(self, request, pk):
         order = Order.objects.get(id=pk)
         serializer = OrderSerializer(order, many=False, context={"request": request})

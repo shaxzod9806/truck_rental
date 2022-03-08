@@ -15,14 +15,6 @@ class OrderSerializer(serializers.ModelSerializer):
     equipment_image_url = serializers.SerializerMethodField("get_equipment_image_url")
     renter_phone = serializers.SerializerMethodField("get_renter_phone")
 
-    # def get_equipment_image(self, obj):
-    #     equipment = Equipment.objects.get(id=obj.equipment.id)
-    #     return equipment.image
-    # def get_photo_url(self, obj):
-    #     request = self.context.get('request')
-    #     photo_url = obj.image.url
-    #     return request.build_absolute_url(photo_url)
-
     def get_equipment_image_url(self, obj):
         request = self.context.get('request')
         equipment = Equipment.objects.get(id=obj.equipment.id)
@@ -43,7 +35,17 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_equipment_name(self, obj):
         equipment = Equipment.objects.get(id=obj.equipment.id)
-        return equipment.name_ru
+        request = self.context.get('request')
+        lang = request.GET.get('lang')
+        print(lang)
+        if lang == 'uz':
+            return equipment.name_uz
+        elif lang == 'ru':
+            return equipment.name_ru
+        elif lang == 'en':
+            return equipment.name_en
+        else:
+            return equipment.name_ru
 
     def get_status(self, obj):
         request = self.context.get('request')
@@ -63,7 +65,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ["id", "customer", 'customer_name', "renter", "renter_phone", "equipment", "equipment_name",
-                  "equipment_image_url","quantity",
+                  "equipment_image_url", "quantity",
                   "start_time", "end_time", "lat", "long", "address", "order_price",
                   "user_cancel", "status", "customer_phone", "customer_email",
                   "notes", "created_at", "updated_at"

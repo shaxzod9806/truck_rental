@@ -138,3 +138,41 @@ class SingleCustomerAPI(APIView):
 
         serializer = CustomerSerializer(customer, many=False, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class Profil_Editing_API(APIView):
+    permission_classes = (IsAuthenticated,)
+    parser_classes = [MultiPartParser, FormParser]
+    serializer_class = CustomerSerializer
+    first_name = openapi.Parameter("first_name", in_=openapi.IN_FORM, type=openapi.TYPE_STRING,
+                                   description="first_name")
+    last_name = openapi.Parameter("last_name", in_=openapi.IN_FORM, type=openapi.TYPE_STRING, description="last_name")
+    token = openapi.Parameter(
+        'Authorization', in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(manual_parameters=[token, first_name, last_name], request_body=CustomerSerializer)
+    def put(self, request):
+        customer = CustomerProfile.objects.get(user=request.user)
+        serializer = CustomerSerializer(customer, data=request.data, many=False, context={"request": request})
+        # data = serializer.data
+        if serializer.is_valid():
+            serializer.save()
+            data = serializer.data
+            usr = User.objects.get(id=request.user.id)
+            usr.first_name = request.data.get("first_name")
+            usr.last_name = request.data.get("last_name")
+            usr.username = data['phone_number']
+            usr.save()
+
+            print(data)
+            # data.append('first_name',usr.first_name)
+            # data['first_name'] = request.data.get("first_name")
+            # data['last_name'] = request.data.get("last_name")
+            return Response({"image": data["customer_image"], "first_name": usr.first_name, "last_name": usr.last_name,
+                             'country': data['country'], "region": data['region'],
+                             "customer_address": data['customer_address']
+                             }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
