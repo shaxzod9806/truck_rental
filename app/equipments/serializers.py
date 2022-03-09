@@ -211,16 +211,13 @@ class EquipmentsSerializer(serializers.ModelSerializer):
     def get_photo_url(self, obj):
         request = self.context.get('request')
         photo_url = obj.image.url
-        try:
-            return request.build_absolute_uri(photo_url)
-        except:
-            return ''
+        return request.build_absolute_uri(photo_url)
 
     class Meta:
         model = Equipment
         fields = ['id', 'name_uz', 'name_ru', 'name_en',
-                  "description_uz","description_ru","description_en",
-                    'image', 'photo_url',
+                  "description_uz", "description_ru", "description_en",
+                  'image', 'photo_url',
                   'brand', 'brand_name',
                   'category_name', 'category', 'sub_category_name', 'sub_category',
                   'created_at', 'updated_at', 'created_by', 'updated_by', 'hourly_price', "hourly_price_night",

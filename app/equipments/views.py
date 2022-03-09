@@ -552,7 +552,7 @@ class CategoryGetOne(generics.RetrieveAPIView):
 
 
 class CategoryList(generics.ListAPIView):
-    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language', type=openapi.TYPE_STRING)
+    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language uz-ru-en', type=openapi.TYPE_STRING)
     # filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
     # filterset_fields = ['name_uz', 'name_ru', 'name_en']
     # search_fields = ["$name_uz", "$name_ru", "$name_en"]
@@ -564,13 +564,13 @@ class CategoryList(generics.ListAPIView):
         lang = request.query_params.get('lang')
         categories = Category.objects.all().order_by('-id')
         if lang == "uz":
-            serializer = CategorySerializerUz(categories, many=True)
+            serializer = CategorySerializerUz(categories, many=True,context={"request": request})
         elif lang == "ru":
-            serializer = CategorySerializerRu(categories, many=True)
+            serializer = CategorySerializerRu(categories, many=True,context={"request": request})
         elif lang == "en":
-            serializer = CategorySerializerEn(categories, many=True)
+            serializer = CategorySerializerEn(categories, many=True,context={"request": request})
         else:
-            serializer = CategorySerializer(categories, many=True)
+            serializer = CategorySerializer(categories, many=True,context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -580,7 +580,7 @@ class SubCategoryGetOne(generics.RetrieveAPIView):
 
 
 class SubCategoryList(generics.ListAPIView):
-    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language', type=openapi.TYPE_STRING)
+    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language  uz-ru-en', type=openapi.TYPE_STRING)
     cat = openapi.Parameter('cat', in_=openapi.IN_QUERY, description='enter cat', type=openapi.TYPE_INTEGER)
 
     # filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
@@ -616,7 +616,7 @@ class EquipmentGetOne(generics.RetrieveAPIView):
 class EquipmentList(generics.ListAPIView):
     # queryset = Equipment.objects.all().order_by('-id')
     serializer_class = EquipmentsSerializer
-    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language', type=openapi.TYPE_STRING)
+    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language uz-ru-en', type=openapi.TYPE_STRING)
     cat = openapi.Parameter('cat', in_=openapi.IN_QUERY, description='enter cat', type=openapi.TYPE_INTEGER)
     sub_cat = openapi.Parameter('sub_cat', in_=openapi.IN_QUERY, description='enter sub_cat', type=openapi.TYPE_INTEGER)
     # filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
@@ -630,16 +630,18 @@ class EquipmentList(generics.ListAPIView):
         lang = request.query_params.get('lang')
         cat = request.query_params.get('cat')
         sub_cat = request.query_params.get('sub_cat')
-        if cat and sub_cat:
-            equipments = Equipment.objects.all().order_by('-id').filter(sub_category_id=sub_cat,category_id=cat)
+        print(cat)
+        print(sub_cat)
+        if cat or sub_cat:
+            equipments = Equipment.objects.all().order_by('-id').filter(sub_category_id=sub_cat)
         else:
             equipments = Equipment.objects.all().order_by('-id')
         if lang == "uz":
-            serializer = EquipmentsSerializerUz(equipments, many=True)
+            serializer = EquipmentsSerializerUz(equipments, many=True,context={"request": request})
         elif lang == "ru":
-            serializer = EquipmentsSerializerRu(equipments, many=True)
+            serializer = EquipmentsSerializerRu(equipments, many=True,context={"request": request})
         elif lang == "en":
-            serializer = EquipmentsSerializerEn(equipments, many=True)
+            serializer = EquipmentsSerializerEn(equipments, many=True,context={"request": request})
         else:
-            serializer = EquipmentsSerializer(equipments, many=True)
+            serializer = EquipmentsSerializer(equipments, many=True,context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
