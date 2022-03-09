@@ -43,10 +43,10 @@ class CustomerProfileAPI(APIView, PaginationHandlerMixin):
         serializer = CustomerSerializer(page, many=True, context={'request': request})
         if page is not None:
             serializer = self.get_paginated_response(
-                CustomerSerializer(page, many=True).data)
+                CustomerSerializer(page, many=True, context={'request': request}).data)
         else:
             serializer = self.get_paginated_response(
-                self.serializer_class(page, many=True).data
+                self.serializer_class(page, many=True, context={'request': request}).data
             )
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 

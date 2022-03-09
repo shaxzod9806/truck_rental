@@ -23,9 +23,12 @@ class CustomerSerializer(serializers.ModelSerializer):
     #     return ""
 
     def get_image_url(self, obj):
-        request = self.context.get("request")
-        photo_url = obj.customer_image.url
-        return request.build_absolute_uri(photo_url)
+        try:
+            request = self.context.get("request")
+            photo_url = obj.customer_image.url
+            return request.build_absolute_uri(photo_url)
+        except:
+            return ""
 
     def get_country_name(self, obj):
         country = Country.objects.get(id=obj.country.id)
