@@ -637,24 +637,26 @@ class EquipmentGetOne(generics.RetrieveAPIView):
 
 
 class EquipmentList(generics.ListAPIView):
-    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language uz-ru-en',
+
+    lang = openapi.Parameter('lang', in_=openapi.IN_FORM, description='enter language uz-ru-en',
                              type=openapi.TYPE_STRING)
-    cat = openapi.Parameter('cat', in_=openapi.IN_QUERY, description='enter cat', type=openapi.TYPE_INTEGER)
-    sub_cat = openapi.Parameter('sub_cat', in_=openapi.IN_QUERY, description='enter sub_cat', type=openapi.TYPE_INTEGER)
+    pagination_class = LargeResultsSetPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
     filterset_fields = ['name_uz', 'name_ru', 'name_en', "sub_category", "category", "brand",]
-    serializer_class = EquipmentsSerializer
+    queryset = Equipment.objects.all()
+
+    def get_serializer_class(self):
+        lang = self.request.data["lang"]
+        if lang == "uz":
+            serializer_class = EquipmentsSerializerUz
+        elif lang == "ru":
+            serializer_class = EquipmentsSerializerRu
+        else:
+            serializer_class = EquipmentsSerializer
+        return serializer_class
+
     search_fields = ['name_uz', 'name_ru', 'name_en']
 
-    @swagger_auto_schema(manual_parameters=[lang])
-    def get_queryset(self):
-        lang = self.request.data.get('lang')
-        if lang == "uz":
-            queryset = Equipment.objects.all().defer("name_ru", "name_en")
-        else:
-            queryset = Equipment.objects.all()
-
-        return queryset
 
 
 

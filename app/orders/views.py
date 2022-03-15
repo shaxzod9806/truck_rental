@@ -24,6 +24,7 @@ from equipments.views import BasicPagination
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from utilities.pagination import PaginationHandlerMixin
 from django.utils.dateparse import parse_datetime
+from utilities import firebase
 
 
 # Create your views here.
@@ -130,6 +131,9 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
 
     @swagger_auto_schema(manual_parameters=[param_config, ordering, lang])
     def get(self, request):
+
+        notification = firebase.sendPush("Test", "Xabar", ["AAAAeoexyh0:APA91bEmJYowPKaEsPzZ2xwmKkIcZcmVMJekvsTc3W-qwlA14MYF_kXKC4i04_bsZSWjcsTPze40L_9vvfxgfOdzRkJRROcxWFMEEDFBeTIlPBptFiIdLQDHC6S-bHp9WK7sLMNm6Inr"])
+        print(notification)
         lang = request.GET.get('lang')
         print(lang)
         orders = Order.objects.filter(customer=request.user).order_by('-id')
