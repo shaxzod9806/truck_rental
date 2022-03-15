@@ -211,6 +211,7 @@ class EquipmentsSerializer(serializers.ModelSerializer):
     def get_photo_url(self, obj):
         request = self.context.get('request')
         photo_url = obj.image.url
+
         return request.build_absolute_uri(photo_url)
 
     class Meta:
