@@ -1,7 +1,6 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.decorators import api_view
-from django.contrib.auth.hashers import make_password
 from index.models import User
 from django.contrib.auth.hashers import make_password
 from renter.serializers import UserSerializer

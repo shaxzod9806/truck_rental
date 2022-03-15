@@ -4,7 +4,6 @@ import json
 
 def send_sms(number, text, sms_id):
     """
-
     :param number: str; enter number without "+" sign, example: 998941234567
     :param text: str; enter text you want
     :param sms_id: int; sms id from backend
@@ -29,7 +28,6 @@ def send_sms(number, text, sms_id):
     }
     r = requests.post(url, auth=(username, password), json=data)
     return r.text
-
 
 # send_sms("998946128484", "function is running", 35)
 
