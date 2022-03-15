@@ -637,36 +637,27 @@ class EquipmentGetOne(generics.RetrieveAPIView):
 
 
 class EquipmentList(generics.ListAPIView):
-    # queryset = Equipment.objects.all().order_by('-id')
-    serializer_class = EquipmentsSerializer
-    lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language uz-ru-en',
+
+    lang = openapi.Parameter('lang', in_=openapi.IN_FORM, description='enter language uz-ru-en',
                              type=openapi.TYPE_STRING)
-    cat = openapi.Parameter('cat', in_=openapi.IN_QUERY, description='enter cat', type=openapi.TYPE_INTEGER)
-    sub_cat = openapi.Parameter('sub_cat', in_=openapi.IN_QUERY, description='enter sub_cat', type=openapi.TYPE_INTEGER)
+    pagination_class = LargeResultsSetPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['name_uz', 'name_ru', 'name_en', "sub_category", "category", "brand",]
+    queryset = Equipment.objects.all()
 
-    # filter_backends = [DjangoFilterBackend, SearchFilter, filters.OrderingFilter]
-    # filterset_fields = ['name_uz', 'name_ru', 'name_en', "sub_category", "category", "brand"]
-    # search_fields = ["$name_uz", "$name_ru", "$name_en"]
-    # ordering_fields = '__all__'
-    # pagination_class = LargeResultsSetPagination
-
-    @swagger_auto_schema(manual_parameters=[lang, cat, sub_cat])
-    def get(self, request):
-        lang = request.query_params.get('lang')
-        cat = request.query_params.get('cat')
-        sub_cat = request.query_params.get('sub_cat')
-        print(cat)
-        print(sub_cat)
-        if cat or sub_cat:
-            equipments = Equipment.objects.all().order_by('-id').filter(sub_category_id=sub_cat)
-        else:
-            equipments = Equipment.objects.all().order_by('-id')
+    def get_serializer_class(self):
+        lang = self.request.data["lang"]
         if lang == "uz":
-            serializer = EquipmentsSerializerUz(equipments, many=True, context={"request": request})
+            serializer_class = EquipmentsSerializerUz
         elif lang == "ru":
-            serializer = EquipmentsSerializerRu(equipments, many=True, context={"request": request})
-        elif lang == "en":
-            serializer = EquipmentsSerializerEn(equipments, many=True, context={"request": request})
+            serializer_class = EquipmentsSerializerRu
         else:
-            serializer = EquipmentsSerializer(equipments, many=True, context={"request": request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            serializer_class = EquipmentsSerializer
+        return serializer_class
+
+    search_fields = ['name_uz', 'name_ru', 'name_en']
+
+
+
+
+

@@ -31,5 +31,6 @@ uWSGI>=2.0.19.1,<2.1
 django-filter
 django-crontab
 pytest
+firebase-admin
 
 

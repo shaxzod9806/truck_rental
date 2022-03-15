@@ -207,3 +207,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRONJOBS = [
     ('*/5 * * * *', 'orders.cron.my_scheduled_job')
 ]
+
+firebase_cred = f"{BASE_DIR}/firebase.json"
