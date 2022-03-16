@@ -211,7 +211,6 @@ class EquipmentsSerializer(serializers.ModelSerializer):
     def get_photo_url(self, obj):
         request = self.context.get('request')
         photo_url = obj.image.url
-
         return request.build_absolute_uri(photo_url)
 
     class Meta:
@@ -233,6 +232,17 @@ class EquipmentsSerializerUz(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField('get_category_name')
     sub_category_name = serializers.SerializerMethodField('get_sub_category_name')
     description = serializers.SerializerMethodField('description_uz')
+    photo_url = serializers.SerializerMethodField('get_photo_url')
+    brand_name = serializers.SerializerMethodField('get_brand_name')
+
+    def get_brand_name(self, obj):
+        brand = Brand.objects.get(id=obj.brand.id)
+        return brand.brand_name
+
+    def get_photo_url(self, obj):
+        request = self.context.get('request')
+        photo_url = obj.image.url
+        return request.build_absolute_uri(photo_url)
 
     def description_uz(self, obj):
         description = obj.description_uz
@@ -252,11 +262,11 @@ class EquipmentsSerializerUz(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['id', 'name', 'description', 'image', 'category', 'category_name', 'sub_category',
+        fields = ['id', 'name', 'description', 'image','photo_url', "brand", "brand_name", 'category', 'category_name', 'sub_category',
                   'sub_category_name', 'created_at',
                   'updated_at',
                   'created_by',
-                  'updated_by',
+                  'updated_by', 'hourly_price', "hourly_price_night",
                   "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
                   "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
                   "zagruzka_bunker",
@@ -287,9 +297,9 @@ class EquipmentsSerializerRu(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['id', 'name', 'description', 'image', 'category',
+        fields = ['id', 'name', 'description', 'image','photo_url', "brand", "brand_name", 'category',
                   'category_name', 'sub_category', 'sub_category_name', 'created_at', 'updated_at', 'created_by',
-                  'updated_by',
+                  'updated_by', 'hourly_price', "hourly_price_night",
                   "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
                   "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
                   "zagruzka_bunker"
@@ -301,6 +311,17 @@ class EquipmentsSerializerEn(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField('get_category_name')
     sub_category_name = serializers.SerializerMethodField('get_sub_category_name')
     description = serializers.SerializerMethodField('description_en')
+    photo_url = serializers.SerializerMethodField('get_photo_url')
+    brand_name = serializers.SerializerMethodField('get_brand_name')
+
+    def get_brand_name(self, obj):
+        brand = Brand.objects.get(id=obj.brand.id)
+        return brand.brand_name
+
+    def get_photo_url(self, obj):
+        request = self.context.get('request')
+        photo_url = obj.image.url
+        return request.build_absolute_uri(photo_url)
 
     def description_en(self, obj):
         description = obj.description_en
@@ -320,10 +341,10 @@ class EquipmentsSerializerEn(serializers.ModelSerializer):
 
     class Meta:
         model = Equipment
-        fields = ['id', 'name', 'description', 'image', 'category_name', 'category', 'sub_category',
+        fields = ['id', 'name', 'description', 'image','photo_url', "brand", "brand_name", 'category_name', 'category', 'sub_category',
                   'sub_category_name', 'created_at',
                   'updated_at', 'created_by',
-                  'updated_by',
+                  'updated_by', 'hourly_price', "hourly_price_night",
                   "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
                   "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
                   "zagruzka_bunker"
