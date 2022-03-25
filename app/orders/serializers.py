@@ -66,7 +66,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ["id", "customer", 'customer_name', "renter", "renter_phone", "equipment", "equipment_name",
                   "equipment_image_url", "quantity",
-                  "start_time", "end_time", "lat", "long", "address", "order_price",
+                  "start_time", "end_time", "lat", "long", "address", "order_price","payment_type",
                   "user_cancel", "status", "customer_phone", "customer_email",
                   "notes", "created_at", "updated_at"
                   ]

@@ -517,7 +517,7 @@ class AdditionsApi(APIView):
 #
 class SingleAddition(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
-    param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
+    param_config =  openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
 
