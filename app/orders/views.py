@@ -70,6 +70,7 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             order_price = data["order_price"]
             address = data["address"]
             data["order_price"] = data["order_price"]
+            data["payment_type"] = data["payment_type"]
             data["notes"] = data["notes"]
             data["quantity"] = data["quantity"]
             # data["renter"] = renter.id

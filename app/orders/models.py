@@ -7,6 +7,13 @@ from renter.models import RenterProduct
 # Create your models here.
 
 class Order(models.Model):
+    TYPE_CHOICES = (
+        (1, 'CLICK'),
+        (2, 'PAY_ME'),
+        (3, 'NAQD_PUL'),
+        (4, 'BANK_ORQALI'),
+
+    )
     # User  -> customer profile
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer", null=True)  #
     renter = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="renter", blank=True)
@@ -18,21 +25,21 @@ class Order(models.Model):
     long = models.CharField(max_length=255, null=True)
     address = models.CharField(max_length=255, null=True)
     order_price = models.FloatField(null=True)
+    payment_type = models.IntegerField(choices=TYPE_CHOICES, default=3)
     user_cancel = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes = models.TextField(null=True, blank=True)
 
 
-order_status = (
-    (1, 'pending'),
-    (2, 'canceled'),
-    (3, 'accepted'),
-    (4, 'no response'),
-)
-
-
 class OrderChecking(models.Model):
+    order_status = (
+        (1, 'pending'),
+        (2, 'canceled'),
+        (3, 'accepted'),
+        (4, 'no response'),
+    )
+
     renter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="renter_temp")
     equipment = models.ForeignKey(RenterProduct, on_delete=models.PROTECT)
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
