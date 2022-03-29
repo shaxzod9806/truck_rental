@@ -167,7 +167,7 @@ class Profil_Editing_API(APIView):
             usr.username = data['phone_number']
             usr.save()
 
-            print(data)
+            # print(data)
             # data.append('first_name',usr.first_name)
             # data['first_name'] = request.data.get("first_name")
             # data['last_name'] = request.data.get("last_name")
