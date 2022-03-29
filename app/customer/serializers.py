@@ -6,12 +6,13 @@ class CustomerSerializer(serializers.ModelSerializer):
     country_name = serializers.SerializerMethodField("get_country_name")
     region_name = serializers.SerializerMethodField("get_region_name")
     photo_url = serializers.SerializerMethodField("get_image_url")
+
     # first_name = serializers.CharField(source='get_first_name')
     # last_name = serializers.CharField(source='user.last_name')
 
     class Meta:
         model = CustomerProfile
-        fields = (
+        fields = ("id",
             "phone_number", "customer_image", "photo_url", "customer_address", "user", "country", "country_name",
             "region",
             "region_name")
@@ -31,12 +32,19 @@ class CustomerSerializer(serializers.ModelSerializer):
             return ""
 
     def get_country_name(self, obj):
-        country = Country.objects.get(id=obj.country.id)
-        return country.country_name
+        try:
+            country = Country.objects.get(id=obj.country.id)
+            return country.country_name
+        except:
+            return null
+
 
     def get_region_name(self, obj):
-        region = Region.objects.get(id=obj.region.id)
-        return region.region_name
+        try:
+            region = Region.objects.get(id=obj.region.id)
+            return region.region_name
+        except:
+            return null
 
 
 class CountrySerializer(serializers.ModelSerializer):

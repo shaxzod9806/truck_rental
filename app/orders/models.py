@@ -29,7 +29,8 @@ class Order(models.Model):
     user_cancel = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    notes = models.TextField(null=True, blank=True)
+    notes = models.TextField(blank=False)
+
 
 
 class OrderChecking(models.Model):
