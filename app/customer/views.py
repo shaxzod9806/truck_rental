@@ -131,20 +131,16 @@ class SingleCustomerAPI(APIView):
         description='enter access token with Bearer word for example: Bearer token',
         type=openapi.TYPE_STRING
     )
-    user_id = openapi.Parameter(
-        'user_id', in_=openapi.IN_QUERY,
-        description='enter  ID',
+    customer_id = openapi.Parameter(
+        'customer_id', in_=openapi.IN_QUERY,
+        description='enter  customer_id',
         type=openapi.TYPE_INTEGER
     )
 
-    @swagger_auto_schema(manual_parameters=[token,user_id])
+    @swagger_auto_schema(manual_parameters=[token, user_id])
     def get(self, request):
-        # customer = CustomerProfile.objects.get(user=request.user)
-        print(request.data)
-        # usrid= request.GET.get('user_id')
-        usrid= request.GET['user_id']
-        customer = CustomerProfile.objects.get(id=usrid)
-        # customer_profile = CustomerProfile.objects.get(id=request.data["user_id"])
+        customer_i = request.GET['customer_id']
+        customer = CustomerProfile.objects.get(id=customer_i)
 
         serializer = CustomerSerializer(customer, many=False, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
