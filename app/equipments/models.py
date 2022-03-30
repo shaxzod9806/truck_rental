@@ -73,9 +73,10 @@ class Equipment(models.Model):
     description_uz = models.TextField(blank=True)
     description_ru = models.TextField(blank=True)
     description_en = models.TextField(null=True, blank=True)
-    hourly_price = models.FloatField(null=True)
-    hourly_price_night = models.FloatField(null=True)
-    tip = models.CharField(max_length=255, null=True)
+    hourly_price = models.FloatField(null=True,blank=True)
+    hourly_price_night = models.FloatField(null=True,blank=True)
+
+    tip = models.CharField(max_length=255, null=True,blank=True)
     gabarity_mm = models.CharField(max_length=255, null=True)
     ves = models.CharField(max_length=255, null=True)
     moshnost_kvt = models.CharField(max_length=255, null=True)

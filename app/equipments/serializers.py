@@ -223,7 +223,7 @@ class EquipmentsSerializer(serializers.ModelSerializer):
                   'created_at', 'updated_at', 'created_by', 'updated_by', 'hourly_price', "hourly_price_night",
                   "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
                   "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
-                  "zagruzka_bunker"
+                  "zagruzka_bunker",
                   ]
 
 

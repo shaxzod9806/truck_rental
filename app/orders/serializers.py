@@ -3,6 +3,7 @@ from .models import Order, OrderChecking
 from customer.models import CustomerProfile
 from index.models import User
 from equipments.models import Equipment
+from equipments.serializers import EquipmentsSerializer
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -14,6 +15,31 @@ class OrderSerializer(serializers.ModelSerializer):
     # equipment_image = serializers.SerializerMethodField("get_equipment_image")
     equipment_image_url = serializers.SerializerMethodField("get_equipment_image_url")
     renter_phone = serializers.SerializerMethodField("get_renter_phone")
+    tip = serializers.SerializerMethodField("get_tip")
+    hourly_price = serializers.SerializerMethodField("get_hourly_price")
+    hourly_price_night = serializers.SerializerMethodField("get_hourly_price_night")
+
+    def get_hourly_price(self, obj):
+        request = self.context.get('request')
+        # print(request.data)
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        # print(equipment)
+        return equipment.hourly_price
+    #
+    def get_hourly_price_night(self, obj):
+        request = self.context.get('request')
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        return equipment.hourly_price_night
+    def get_tip(self, obj):
+        request = self.context.get('request')
+        equipment = Equipment.objects.get(id=obj.equipment.id)
+        return equipment.tip
+
+    # def get_tip(self, obj):
+    #     request = self.context.get('request')
+    #     equipment = Equipment.objects.get(id=obj.equipment.id)
+    #     print(equipment)
+    #     return equipment.tip
 
     def get_equipment_image_url(self, obj):
         request = self.context.get('request')
@@ -65,8 +91,9 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ["id", "customer", 'customer_name', "renter", "renter_phone", "equipment", "equipment_name",
-                  "equipment_image_url", "quantity",
-                  "start_time", "end_time", "lat", "long", "address", "order_price","payment_type",
+                  "equipment_image_url", "quantity","tip","hourly_price","hourly_price_night",
+                  "start_time", "end_time", "daylight_hours", "night_hours", "lat", "long", "address", "order_price",
+                  "payment_type",
                   "user_cancel", "status", "customer_phone", "customer_email",
                   "notes", "created_at", "updated_at"
                   ]
