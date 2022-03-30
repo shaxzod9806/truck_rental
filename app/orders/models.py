@@ -10,27 +10,27 @@ class Order(models.Model):
     TYPE_CHOICES = (
         (1, 'CLICK'),
         (2, 'PAY_ME'),
-        (3, 'NAQD_PUL'),
-        (4, 'BANK_ORQALI'),
+        (3, 'APELSIN'),
 
     )
     # User  -> customer profile
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer", null=True)  #
     renter = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="renter", blank=True)
-    equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT, null=True)
+    equipment = models.ForeignKey(Equipment, on_delete=models.PROTECT, related_name="equipment", null=True, )
     quantity = models.IntegerField(default=1)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
+    night_hours = models.FloatField(null=True, blank=True)
+    daylight_hours = models.FloatField(null=True, blank=True)
     lat = models.CharField(max_length=255, null=True)
     long = models.CharField(max_length=255, null=True)
     address = models.CharField(max_length=255, null=True)
     order_price = models.FloatField(null=True)
-    payment_type = models.IntegerField(choices=TYPE_CHOICES, default=3)
+    payment_type = models.IntegerField(choices=TYPE_CHOICES, default=1)
     user_cancel = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes = models.TextField(blank=False)
-
 
 
 class OrderChecking(models.Model):

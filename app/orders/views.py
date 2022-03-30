@@ -73,6 +73,8 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
             data["payment_type"] = data["payment_type"]
             data["notes"] = data["notes"]
             data["quantity"] = data["quantity"]
+            data["night_hours"] = data["night_hours"]
+            data["daylight_hours"] = data["daylight_hours"]
             # data["renter"] = renter.id
             print(data)
             data["renter"] = None
