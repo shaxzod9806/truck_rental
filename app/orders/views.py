@@ -199,13 +199,6 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[param_config, ordering, lang])
     def get(self, request):
 
-        # notification = firebase.send_notification("Test", "Xabar", [
-        #     "AAAAeoexyh0:APA91bEmJYowPKaEsPzZ2xwmKkIcZcmVMJekvsTc3W-qwlA14MYF_kXKC4i04_bsZSWjcsTPze40L_9vvfxgfOdzRkJRROcxWFMEEDFBeTIlPBptFiIdLQDHC6S-bHp9WK7sLMNm6Inr"])
-        # print(notification)
-        notif = send_notification(("SIno uchun", "motochas v2 chiqdi",
-                                   "eplggsfnRAS9lIdSGi3wYR:APA91bEoeCa7162nx7VbaIT74OpbMpnC6m6rGx6vXHykBCU23jA4GLkOtw-IbDKfpZOjUtgz4NE6iqnE6VzFEfUwk9KrGpSFGfAotPkjA76aMGh2oZ7_u4fWNwvHThQv5MCC5qMHgweE",
-                                   ))
-        print(notif)
         lang = request.GET.get('lang')
         print(lang)
         orders = Order.objects.filter(customer=request.user).order_by('-id')
