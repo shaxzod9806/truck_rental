@@ -52,6 +52,7 @@ class OrderChecking(models.Model):
 class FireBaseNotification(models.Model):
     title = models.CharField(max_length=255)
     body = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     # order = models.ForeignKey(Order, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

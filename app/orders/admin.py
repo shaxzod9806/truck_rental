@@ -1,8 +1,10 @@
 from django.contrib import admin
-from .models import Order, OrderChecking
+from .models import Order, OrderChecking,RefreshFireBaseToken,FireBaseNotification
 
 # Register your models here.
 admin.site.register(Order)
+admin.site.register(RefreshFireBaseToken)
+admin.site.register(FireBaseNotification)
 
 
 # admin.site.register(OrderChecking)

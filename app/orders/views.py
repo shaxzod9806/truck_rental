@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Order, OrderChecking
+from .models import Order, OrderChecking, FireBaseNotification, RefreshFireBaseToken
 from index.models import User
 from customer.models import CustomerProfile
 from .serializers import OrderSerializer, FireBaseNotificationSerializer, RefreshFireBaseTokenSerializer
@@ -78,7 +78,7 @@ class RefreshFireBaseTokenView(APIView):
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
         usr = request.user
-        notifications = RefreshFireBaseTokenSerializer.objects.filter(user=usr)
+        notifications = RefreshFireBaseToken.objects.filter(user=usr)
         serializer = RefreshFireBaseTokenSerializer(notifications, many=True)
         return Response(serializer.data)
 
@@ -86,9 +86,8 @@ class RefreshFireBaseTokenView(APIView):
                          parser_classes=parser_classes)
     def put(self, request):
         usr = request.user
-        notifications = RefreshFireBaseTokenSerializer.objects.filter(user=usr)
-        serializer = RefreshFireBaseTokenSerializer(notifications, data=request.data)
-
+        notifications = RefreshFireBaseToken.objects.filter(user=usr)
+        serializer = RefreshFireBaseTokenSerializer(notifications, many=False, data=request.data,context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
