@@ -8,4 +8,5 @@ urlpatterns = [
     path('register_profile', views.ProfileRegister.as_view(), name="register_profile"),
     path('RentrProduct/', views.RentrProductAPI.as_view(), name="RentrProduct"),
     path('RentrProduct/<int:pk>/', views.SingleRentrProductAPI.as_view(), name="RentrProduct_id"),
+
 ]

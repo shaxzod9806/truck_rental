@@ -29,6 +29,7 @@ def send_sms(number, text, sms_id):
     r = requests.post(url, auth=(username, password), json=data)
     return r.text
 
+
 # send_sms("998946128484", "function is running", 35)
 
 def send_confirm_sms(renter, sms, start_time, end_time, price, address):

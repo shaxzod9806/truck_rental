@@ -47,3 +47,19 @@ class OrderChecking(models.Model):
     checking_start = models.DateTimeField(auto_now_add=True)
     checking_end = models.DateTimeField()
     confirmed = models.CharField(max_length=255, choices=order_status)
+
+
+class FireBaseNotification(models.Model):
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    # order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class RefreshFireBaseToken(models.Model):
+    fmc_token = models.TextField(null=True, blank=True)
+    has_token = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
