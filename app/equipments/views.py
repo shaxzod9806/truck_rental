@@ -517,7 +517,7 @@ class AdditionsApi(APIView):
 #
 class SingleAddition(APIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
-    param_config =  openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
+    param_config = openapi.Parameter('Authorization', in_=openapi.IN_HEADER,
                                      description='enter access token with Bearer word for example: Bearer token',
                                      type=openapi.TYPE_STRING)
 
@@ -621,6 +621,9 @@ class EquipmentGetOne(generics.RetrieveAPIView):
     serializer_class = EquipmentsSerializer
 
 
+from utilities.firebase import send_notification
+
+
 class EquipmentList(generics.ListAPIView):
     lang = openapi.Parameter('lang', in_=openapi.IN_QUERY, description='enter language uz-ru-en',
                              type=openapi.TYPE_STRING)
@@ -630,6 +633,11 @@ class EquipmentList(generics.ListAPIView):
     queryset = Equipment.objects.all()
 
     def get_serializer_class(self):
+
+        notif = send_notification("borgaan bo'lsa yozing tgdan", "motochas v2 chiqdi",
+                                  "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
+                                  "image_url")
+        print(notif)
         lang = self.request.GET.get("lang")
         if lang == "uz":
             serializer_class = EquipmentsSerializerUz

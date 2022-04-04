@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import Order, OrderChecking
 from index.models import User
 from customer.models import CustomerProfile
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, FireBaseNotificationSerializer, RefreshFireBaseTokenSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -19,15 +19,80 @@ from datetime import timedelta
 from utilities.models import SMS
 from utilities.sms import send_sms
 from utilities.sms import send_confirm_sms, send_accepted_sms
+from utilities.firebase import send_notification
 from utilities.price_calculation import renting_time_calc
 from equipments.views import BasicPagination
 from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from utilities.pagination import PaginationHandlerMixin
 from django.utils.dateparse import parse_datetime
-# from utilities import firebase
+
+from utilities.firebase import send_notification
 
 
 # Create your views here.
+
+
+class FireBaseView(APIView):
+    # permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+    param_config = openapi.Parameter(
+        'Authorization',
+        in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[param_config])
+    def get(self, request):
+        notifications = FireBaseNotification.objects.all()
+        serializer = FireBaseNotificationSerializer(notifications, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(manual_parameters=[param_config], request_body=FireBaseNotificationSerializer,
+                         parser_classes=parser_classes)
+    def post(self, request):
+        serializer = FireBaseNotificationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RefreshFireBaseTokenView(APIView):
+    # permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+    param_config = openapi.Parameter(
+        'Authorization',
+        in_=openapi.IN_HEADER,
+        description='enter access token with Bearer word for example: Bearer token',
+        type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[param_config], request_body=RefreshFireBaseTokenSerializer,
+                         parser_classes=parser_classes)
+    def post(self, request):
+        serializer = RefreshFireBaseTokenSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(manual_parameters=[param_config])
+    def get(self, request):
+        usr = request.user
+        notifications = RefreshFireBaseTokenSerializer.objects.filter(user=usr)
+        serializer = RefreshFireBaseTokenSerializer(notifications, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(manual_parameters=[param_config], request_body=RefreshFireBaseTokenSerializer,
+                         parser_classes=parser_classes)
+    def put(self, request):
+        usr = request.user
+        notifications = RefreshFireBaseTokenSerializer.objects.filter(user=usr)
+        serializer = RefreshFireBaseTokenSerializer(notifications, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrderAPIView(APIView, PaginationHandlerMixin):
@@ -135,8 +200,13 @@ class OrderAPIView(APIView, PaginationHandlerMixin):
     @swagger_auto_schema(manual_parameters=[param_config, ordering, lang])
     def get(self, request):
 
-        # notification = firebase.sendPush("Test", "Xabar", ["AAAAeoexyh0:APA91bEmJYowPKaEsPzZ2xwmKkIcZcmVMJekvsTc3W-qwlA14MYF_kXKC4i04_bsZSWjcsTPze40L_9vvfxgfOdzRkJRROcxWFMEEDFBeTIlPBptFiIdLQDHC6S-bHp9WK7sLMNm6Inr"])
+        # notification = firebase.send_notification("Test", "Xabar", [
+        #     "AAAAeoexyh0:APA91bEmJYowPKaEsPzZ2xwmKkIcZcmVMJekvsTc3W-qwlA14MYF_kXKC4i04_bsZSWjcsTPze40L_9vvfxgfOdzRkJRROcxWFMEEDFBeTIlPBptFiIdLQDHC6S-bHp9WK7sLMNm6Inr"])
         # print(notification)
+        notif = send_notification(("SIno uchun", "motochas v2 chiqdi",
+                                   "eplggsfnRAS9lIdSGi3wYR:APA91bEoeCa7162nx7VbaIT74OpbMpnC6m6rGx6vXHykBCU23jA4GLkOtw-IbDKfpZOjUtgz4NE6iqnE6VzFEfUwk9KrGpSFGfAotPkjA76aMGh2oZ7_u4fWNwvHThQv5MCC5qMHgweE",
+                                   ))
+        print(notif)
         lang = request.GET.get('lang')
         print(lang)
         orders = Order.objects.filter(customer=request.user).order_by('-id')
@@ -185,6 +255,9 @@ class OrderCancelAPI(APIView):
         order_itself = Order.objects.get(id=order_id)
         if not order_itself.renter:
             order_itself.user_cancel = True
+            notif = send_notification("order cancel", "motochas v2 chiqdi",
+                                      "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
+                                      "image_url")
             return Response({"details": "order canceled"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already connected renter"}, status=status.HTTP_400_BAD_REQUEST)
@@ -224,6 +297,9 @@ class OrderAcceptAPI(APIView):
             if is_accept == 3:
                 send_accepted_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
                                   order_itself.order_price, order_itself.address)
+                notif = send_notification("order accepted", "motochas v2 chiqdi",
+                                          "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
+                                          "image_url")
                 return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already accepted renter"}, status=status.HTTP_400_BAD_REQUEST)

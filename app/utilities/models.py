@@ -19,3 +19,6 @@ class SMS(models.Model):
     text = models.CharField(null=True, max_length=255)
     sms_type = models.PositiveSmallIntegerField(choices=SMS_CHOICES, default=1)
     is_sent = models.PositiveSmallIntegerField(choices=SENT_OPTIONS, default=0)
+
+
+

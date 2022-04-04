@@ -8,6 +8,13 @@ upload_path_image = 'users/renters'
 
 
 class Profile(models.Model):
+    TYPE_CHOISE_GENDER = (
+        (1, "erkak"),
+        (2, "ayol"),
+    )
+
+    gender = models.PositiveSmallIntegerField(choices=TYPE_CHOISE_GENDER, null=True, blank=True)
+    pochta_indexi = models.CharField(max_length=255, null=True, blank=True)
     organization = models.CharField(max_length=255, null=True)
     office_address = models.CharField(max_length=255, null=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE, null=True)

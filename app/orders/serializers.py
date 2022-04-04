@@ -1,9 +1,20 @@
 from rest_framework import serializers
-from .models import Order, OrderChecking
+from .models import Order, OrderChecking, FireBaseNotification,RefreshFireBaseToken
 from customer.models import CustomerProfile
 from index.models import User
 from equipments.models import Equipment
 from equipments.serializers import EquipmentsSerializer
+
+
+class FireBaseNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FireBaseNotification
+        fields = '__all__'
+        
+class RefreshFireBaseTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RefreshFireBaseToken
+        fields = '__all__'
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -25,11 +36,13 @@ class OrderSerializer(serializers.ModelSerializer):
         equipment = Equipment.objects.get(id=obj.equipment.id)
         # print(equipment)
         return equipment.hourly_price
+
     #
     def get_hourly_price_night(self, obj):
         request = self.context.get('request')
         equipment = Equipment.objects.get(id=obj.equipment.id)
         return equipment.hourly_price_night
+
     def get_tip(self, obj):
         request = self.context.get('request')
         equipment = Equipment.objects.get(id=obj.equipment.id)
@@ -91,7 +104,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ["id", "customer", 'customer_name', "renter", "renter_phone", "equipment", "equipment_name",
-                  "equipment_image_url", "quantity","tip","hourly_price","hourly_price_night",
+                  "equipment_image_url", "quantity", "tip", "hourly_price", "hourly_price_night",
                   "start_time", "end_time", "daylight_hours", "night_hours", "lat", "long", "address", "order_price",
                   "payment_type",
                   "user_cancel", "status", "customer_phone", "customer_email",
