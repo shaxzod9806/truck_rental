@@ -19,7 +19,7 @@ Drop:
 Build and start docker images:
   stage: build
   script:
-    - scp -p 55522 -r ./* ${SSH_CONNECT}:${DIR}
+    - scp -P 55522 -r ./* ${SSH_CONNECT}:${DIR}
     - ssh -p 55522 ${SSH_CONNECT} "cd ${DIR} && docker build -t motochas_app:latest ."
     - ssh -p 55522 ${SSH_CONNECT} 
         "docker run -d 
