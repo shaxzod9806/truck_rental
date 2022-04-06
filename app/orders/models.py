@@ -50,9 +50,17 @@ class OrderChecking(models.Model):
 
 
 class FireBaseNotification(models.Model):
+    TYPE_CHOICES = (
+        (1, 'ACCEPTED'),
+        (2, 'CANCELED'),
+        (3, 'NO_RESPONSE'),
+    )
     title = models.CharField(max_length=255)
     body = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    type_notification = models.IntegerField(choices=TYPE_CHOICES, default=3)
+    oreder_id = models.IntegerField(default=85)
+    image_url = models.CharField(max_length=255, null=True)
     # order = models.ForeignKey(Order, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -61,6 +69,6 @@ class FireBaseNotification(models.Model):
 class RefreshFireBaseToken(models.Model):
     fmc_token = models.TextField(null=True, blank=True)
     has_token = models.BooleanField(default=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
