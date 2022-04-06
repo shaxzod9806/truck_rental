@@ -9,8 +9,8 @@ variables:
 Drop:
   stage: drop
   script:
-    - ssh ${SSH_CONNECT} "docker stop moto-backend || true && docker rm moto-backend || true && docker rmi motochas_app:latest || true"
-    - ssh ${SSH_CONNECT} "mkdir -p ${DIR}"
+    - ssh -p 55522 ${SSH_CONNECT} "docker stop moto-backend || true && docker rm moto-backend || true && docker rmi motochas_app:latest || true"
+    - ssh -p 55522 ${SSH_CONNECT} "mkdir -p ${DIR}"
   only:
     - main
   tags:
@@ -20,8 +20,8 @@ Build and start docker images:
   stage: build
   script:
     - scp -r ./* ${SSH_CONNECT}:${DIR}
-    - ssh ${SSH_CONNECT} "cd ${DIR} && docker build -t motochas_app:latest ."
-    - ssh ${SSH_CONNECT} 
+    - ssh -p 55522 ${SSH_CONNECT} "cd ${DIR} && docker build -t motochas_app:latest ."
+    - ssh -p 55522 ${SSH_CONNECT} 
         "docker run -d 
         --restart=always
         --name=moto-backend 
