@@ -1,20 +1,29 @@
 from rest_framework import serializers
-from .models import Order, OrderChecking, FireBaseNotification,RefreshFireBaseToken
+from .models import Order, OrderChecking, FireBaseNotification, RefreshFireBaseToken
 from customer.models import CustomerProfile
 from index.models import User
 from equipments.models import Equipment
 from equipments.serializers import EquipmentsSerializer
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class FireBaseNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = FireBaseNotification
         fields = '__all__'
-        
+
+
 class RefreshFireBaseTokenSerializer(serializers.ModelSerializer):
+    token = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = RefreshFireBaseToken
-        fields = '__all__'
+        fields = ['token', "fmc_token", "has_token", "users", "created_at", "updated_at"]
+
+    def get_token(self, obj):
+        token = AccessToken.for_user(obj)
+        return str(token)
 
 
 class OrderSerializer(serializers.ModelSerializer):

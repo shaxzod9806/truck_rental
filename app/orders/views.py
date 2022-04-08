@@ -66,6 +66,14 @@ class RefreshFireBaseTokenView(APIView):
         description='enter access token with Bearer word for example: Bearer token',
         type=openapi.TYPE_STRING)
 
+    # @swagger_auto_schema(request_body=openapi.Schema(
+    #     type=openapi.TYPE_OBJECT,
+    #     properties={
+    #         'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
+    #         'pre_password': openapi.Schema(type=openapi.TYPE_STRING, description='pre_password'),
+    #         'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='user_id'),
+    #     }
+    # ))
     @swagger_auto_schema(manual_parameters=[param_config], request_body=RefreshFireBaseTokenSerializer,
                          parser_classes=parser_classes)
     def post(self, request):
@@ -87,7 +95,8 @@ class RefreshFireBaseTokenView(APIView):
     def put(self, request):
         usr = request.user
         notifications = RefreshFireBaseToken.objects.filter(user=usr)
-        serializer = RefreshFireBaseTokenSerializer(notifications, many=False, data=request.data,context={'request': request})
+        serializer = RefreshFireBaseTokenSerializer(notifications, many=False, data=request.data,
+                                                    context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -289,9 +298,29 @@ class OrderAcceptAPI(APIView):
             if is_accept == 3:
                 send_accepted_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
                                   order_itself.order_price, order_itself.address)
-                notif = send_notification("order accepted", "motochas v2 chiqdi",
-                                          "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
-                                          "image_url")
+                # title = "order accepted"
+                # body = "motochas v2 chiqdi"
+                # usr = order_itself.customer.user
+                # type_notification = "order accepted"
+                # image_url = "image_url"
+                # # fms_token = user.fms_token
+                # # fms_token =RefreshFireBaseToken.objects.get(user=user).fms_token
+                # fms_token = "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK"
+
+                # notif = send_notification(title, body, fms_token, image_url)
+                # fb_notif = FireBaseNotification.objects.create(
+                #     title="order accepted",
+                #     body="motochas v2 chiqdi",
+                #     user=usr,
+                #     type_notification=3,
+                # )
                 return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
+            elif is_accept == 2:
+                send_canceled_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
+                                  order_itself.order_price, order_itself.address)
+                # notif = send_notification("order canceled", "motochas v2 chiqdi",
+                #                           "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
+                #                           "image_url")
+                return Response({"details": "order canceled"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already accepted renter"}, status=status.HTTP_400_BAD_REQUEST)

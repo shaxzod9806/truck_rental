@@ -358,9 +358,10 @@ class EquipmentsSerializerEn(serializers.ModelSerializer):
                   'sub_category_name', 'created_at',
                   'updated_at', 'created_by',
                   'updated_by', 'hourly_price', "hourly_price_night",
+                  "gruza_padyoma","motor_model","yoqilgi_sarfi",
                   "tip", "gabarity_mm", "ves", "moshnost_kvt", "shirina_ukladki",
                   "tolshina_ukladki", "skorost_ukladki", "skorost_dvizheniya",
-                  "zagruzka_bunker"
+                  "zagruzka_bunker",
 
                   ]
 
