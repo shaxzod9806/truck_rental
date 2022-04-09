@@ -256,9 +256,9 @@ class OrderCancelAPI(APIView):
         order_itself = Order.objects.get(id=order_id)
         if not order_itself.renter:
             order_itself.user_cancel = True
-            notif = send_notification("order cancel", "motochas v2 chiqdi",
-                                      "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
-                                      "image_url")
+            # notif = send_notification("order cancel", "motochas v2 chiqdi",
+            #                           "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
+            #                           "image_url")
             return Response({"details": "order canceled"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already connected renter"}, status=status.HTTP_400_BAD_REQUEST)
