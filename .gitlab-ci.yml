@@ -4,13 +4,13 @@ stages:
 
 variables:
   DIR: "/tmp/motochas_app"
-  SSH_CONNECT: "root@172.17.0.1"
+  SSH_CONNECT: "root@83.69.137.155"
 
 Drop:
   stage: drop
   script:
-    - ssh ${SSH_CONNECT} "docker stop moto-backend || true && docker rm moto-backend || true && docker rmi motochas_app:latest || true"
-    - ssh ${SSH_CONNECT} "mkdir -p ${DIR}"
+    - ssh -p 55522 ${SSH_CONNECT} "docker stop moto-backend || true && docker rm moto-backend || true && docker rmi motochas_app:latest || true"
+    - ssh -p 55522 ${SSH_CONNECT} "mkdir -p ${DIR}"
   only:
     - main
   tags:
@@ -19,13 +19,13 @@ Drop:
 Build and start docker images:
   stage: build
   script:
-    - scp -r ./* ${SSH_CONNECT}:${DIR}
-    - ssh ${SSH_CONNECT} "cd ${DIR} && docker build -t motochas_app:latest ."
-    - ssh ${SSH_CONNECT} 
+    - scp -P 55522 -r ./* ${SSH_CONNECT}:${DIR}
+    - ssh -p 55522 ${SSH_CONNECT} "cd ${DIR} && docker build -t motochas_app:latest ."
+    - ssh -p 55522 ${SSH_CONNECT} 
         "docker run -d 
         --restart=always
         --name=moto-backend 
-        -v moto-static-data:/vol/web 
+        -v motochas_moto-static-data:/vol/web 
         --network=motochas_moto-network
         -e DB_HOST=moto-db 
         -e DB_NAME=moto-database 
@@ -33,6 +33,7 @@ Build and start docker images:
         -e DB_PASS=kElqLzHB 
         -e ALLOWED_HOSTS=* 
         motochas_app:latest"
+    - ssh -p 55522 ${SSH_CONNECT} "rm -rf ${DIR}"
   only:
     - main
   tags:

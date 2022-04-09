@@ -633,11 +633,6 @@ class EquipmentList(generics.ListAPIView):
     queryset = Equipment.objects.all()
 
     def get_serializer_class(self):
-
-        notif = send_notification("borgaan bo'lsa yozing tgdan", "motochas v2 chiqdi",
-                                  "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
-                                  "image_url")
-        print(notif)
         lang = self.request.GET.get("lang")
         if lang == "uz":
             serializer_class = EquipmentsSerializerUz

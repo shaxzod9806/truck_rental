@@ -31,7 +31,6 @@ from utilities.firebase import send_notification
 
 # Create your views here.
 
-
 class FireBaseView(APIView):
     # permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
@@ -65,6 +64,9 @@ class RefreshFireBaseTokenView(APIView):
         in_=openapi.IN_HEADER,
         description='enter access token with Bearer word for example: Bearer token',
         type=openapi.TYPE_STRING)
+    fmc_token = openapi.Parameter('fmc_token', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING)
+    has_token = openapi.Parameter('has_token', in_=openapi.IN_QUERY, description="1-True,2-False",
+                                  type=openapi.TYPE_INTEGER)
 
     # @swagger_auto_schema(request_body=openapi.Schema(
     #     type=openapi.TYPE_OBJECT,
@@ -77,11 +79,11 @@ class RefreshFireBaseTokenView(APIView):
     @swagger_auto_schema(manual_parameters=[param_config], request_body=RefreshFireBaseTokenSerializer,
                          parser_classes=parser_classes)
     def post(self, request):
-        serializer = RefreshFireBaseTokenSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        usr = request.user
+        RFToken = RefreshFireBaseToken.objects.create(user=usr, fmc_token=request.query_params.get('fmc_token')
+                                                      , has_token=request.query_params.get('has_token'))
+        serializer = RefreshFireBaseTokenSerializer(RFToken)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
@@ -90,8 +92,9 @@ class RefreshFireBaseTokenView(APIView):
         serializer = RefreshFireBaseTokenSerializer(notifications, many=True)
         return Response(serializer.data)
 
-    @swagger_auto_schema(manual_parameters=[param_config], request_body=RefreshFireBaseTokenSerializer,
-                         parser_classes=parser_classes)
+    fmc_token = openapi.Parameter('fmc_token', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[param_config, fmc_token])
     def put(self, request):
         usr = request.user
         notifications = RefreshFireBaseToken.objects.filter(user=usr)
@@ -100,7 +103,8 @@ class RefreshFireBaseTokenView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response("something wrong", status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrderAPIView(APIView, PaginationHandlerMixin):
@@ -256,9 +260,6 @@ class OrderCancelAPI(APIView):
         order_itself = Order.objects.get(id=order_id)
         if not order_itself.renter:
             order_itself.user_cancel = True
-            # notif = send_notification("order cancel", "motochas v2 chiqdi",
-            #                           "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
-            #                           "image_url")
             return Response({"details": "order canceled"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already connected renter"}, status=status.HTTP_400_BAD_REQUEST)
