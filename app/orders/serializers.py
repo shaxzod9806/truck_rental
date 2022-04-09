@@ -19,7 +19,7 @@ class RefreshFireBaseTokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RefreshFireBaseToken
-        fields = ["id",'token', "fmc_token", "has_token", "user", "created_at", "updated_at"]
+        fields = ['token', "fmc_token", "has_token", "users", "created_at", "updated_at"]
 
     def get_token(self, obj):
         token = AccessToken.for_user(obj)
