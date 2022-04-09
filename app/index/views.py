@@ -15,6 +15,10 @@ from utilities.models import SMS
 from utilities.sms import send_sms
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
+from orders.models import RefreshFireBaseToken
+from orders.serializers import RefreshFireBaseTokenSerializer
+
+
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -116,6 +120,8 @@ class SecondRegistrationAPI(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
 class UserRegister(CreateAPIView):
     serializer_class = UserSerializer
     http_method_names = ['post']
@@ -129,6 +135,7 @@ class UserRegister(CreateAPIView):
             'password': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'user_type': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
             'device_id': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
+            'fmc_token': openapi.Schema(type=openapi.TYPE_STRING, description='The desc',default=''),
         }
     ))
     def post(self, request):
@@ -146,6 +153,9 @@ class UserRegister(CreateAPIView):
             activation_code=random_number,
             device_id=data["device_id"]
         )
+        refresht = RefreshFireBaseToken.objects.create(fmc_token=data["fmc_token"], user=user, has_token=True)
+        fserializer = RefreshFireBaseTokenSerializer(refresht, many=False)
+
         serializer = UserSerializer(user, many=False)
         sms_itself = SMS.objects.create(phone_number=user.username,
                                         text=data["first_name"] + " bu sizning Tasdiqlash kodingiz: " + str(
