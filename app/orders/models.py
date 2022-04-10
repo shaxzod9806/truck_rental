@@ -59,9 +59,9 @@ class FireBaseNotification(models.Model):
     body = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     type_notification = models.IntegerField(choices=TYPE_CHOICES, default=3)
-    oreder_id = models.IntegerField()
-    # image_url = models.CharField(max_length=255, null=True)
-    # order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    oreder_id = models.IntegerField(null=True)
+    image_url = models.CharField(max_length=255, null=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
