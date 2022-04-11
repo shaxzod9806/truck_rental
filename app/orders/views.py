@@ -275,7 +275,6 @@ class OrderAcceptAPI(APIView):
         description='Enter order id',
         type=openapi.TYPE_INTEGER
     )
-
     is_accept = openapi.Parameter(
         'is_accept',
         in_=openapi.IN_QUERY,
@@ -299,29 +298,48 @@ class OrderAcceptAPI(APIView):
             if is_accept == 3:
                 send_accepted_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
                                   order_itself.order_price, order_itself.address)
-                # title = "order accepted"
-                # body = "motochas v2 chiqdi"
-                # usr = order_itself.customer.user
+                title = "order accepted"
+                body = "renter orderingizni qabul qildi"
+                usr = order_itself.customer.user
                 # type_notification = "order accepted"
-                # image_url = "image_url"
-                # # fms_token = user.fms_token
-                # # fms_token =RefreshFireBaseToken.objects.get(user=user).fms_token
+                image_url = "image.jpg"
+                # fms_token = user.fms_token
+                fms_token = RefreshFireBaseToken.objects.get(users=user).fms_token
                 # fms_token = "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK"
-
-                # notif = send_notification(title, body, fms_token, image_url)
-                # fb_notif = FireBaseNotification.objects.create(
-                #     title="order accepted",
-                #     body="motochas v2 chiqdi",
-                #     user=usr,
-                #     type_notification=3,
-                # )
+                notif = send_notification(title=title, body=body, image_url=image_url, fms_token=fms_token)
+                fb_notif = FireBaseNotification.objects.create(
+                    title=title,
+                    body=body,
+                    user=usr,
+                    type_notification=1,
+                    order_id=order_id,
+                    image_url=image_url,
+                    created_at=datetime.now(),
+                    updated_at=datetime.now(),
+                )
                 return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
             elif is_accept == 2:
                 send_canceled_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
                                   order_itself.order_price, order_itself.address)
-                # notif = send_notification("order canceled", "motochas v2 chiqdi",
-                #                           "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK",
-                #                           "image_url")
+                title = "order canceled"
+                body = "renter orderingizni qabul qilmadi"
+                usr = order_itself.customer.user
+                # type_notification = "order accepted"
+                image_url = "image.jpg"
+                # fms_token = user.fms_token
+                fms_token = RefreshFireBaseToken.objects.get(users=user).fms_token
+                # fms_token = "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK"
+                notif = send_notification(title=title, body=body, image_url=image_url, fms_token=fms_token)
+                fb_notif = FireBaseNotification.objects.create(
+                    title=title,
+                    body=body,
+                    user=usr,
+                    type_notification=1,
+                    order_id=order_id,
+                    image_url=image_url,
+                    created_at=datetime.now(),
+                    updated_at=datetime.now(),
+                )
                 return Response({"details": "order canceled"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already accepted renter"}, status=status.HTTP_400_BAD_REQUEST)

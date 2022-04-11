@@ -153,7 +153,7 @@ class UserRegister(CreateAPIView):
             activation_code=random_number,
             device_id=data["device_id"]
         )
-        refresht = RefreshFireBaseToken.objects.create(fmc_token=data["fmc_token"], user=user, has_token=True)
+        refresht = RefreshFireBaseToken.objects.create(fmc_token=data["fmc_token"], users=user, has_token=True)
         fserializer = RefreshFireBaseTokenSerializer(refresht, many=False)
 
         serializer = UserSerializer(user, many=False)
