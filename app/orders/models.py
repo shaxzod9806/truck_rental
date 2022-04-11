@@ -57,11 +57,10 @@ class FireBaseNotification(models.Model):
     )
     title = models.CharField(max_length=255)
     body = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,default=None)
     type_notification = models.IntegerField(choices=TYPE_CHOICES, default=3)
-    oreder_id = models.IntegerField(null=True)
+    oreder_id = models.IntegerField(null=True, blank=True, default=None)
     image_url = models.CharField(max_length=255, null=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -69,6 +68,6 @@ class FireBaseNotification(models.Model):
 class RefreshFireBaseToken(models.Model):
     fmc_token = models.TextField(null=True, blank=True)
     has_token = models.BooleanField(default=False)
-    users = models.ForeignKey(User, on_delete=models.CASCADE)
+    users = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
