@@ -68,6 +68,6 @@ class FireBaseNotification(models.Model):
 class RefreshFireBaseToken(models.Model):
     fmc_token = models.TextField(null=True, blank=True)
     has_token = models.BooleanField(default=False)
-    users = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    users = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
