@@ -19,8 +19,6 @@ from orders.models import RefreshFireBaseToken
 from orders.serializers import RefreshFireBaseTokenSerializer
 
 
-
-
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -119,8 +117,7 @@ class SecondRegistrationAPI(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
+import datetime
 
 class UserRegister(CreateAPIView):
     serializer_class = UserSerializer
@@ -135,7 +132,7 @@ class UserRegister(CreateAPIView):
             'password': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
             'user_type': openapi.Schema(type=openapi.TYPE_INTEGER, description='The desc'),
             'device_id': openapi.Schema(type=openapi.TYPE_STRING, description='The desc'),
-            'fmc_token': openapi.Schema(type=openapi.TYPE_STRING, description='The desc',default=''),
+            'fmc_token': openapi.Schema(type=openapi.TYPE_STRING, description='The desc', default=''),
         }
     ))
     def post(self, request):
@@ -153,8 +150,11 @@ class UserRegister(CreateAPIView):
             activation_code=random_number,
             device_id=data["device_id"]
         )
-        refresht = RefreshFireBaseToken.objects.create(fmc_token=data["fmc_token"], users=user, has_token=True)
+        refresht = RefreshFireBaseToken.objects.create(fmc_token=data["fmc_token"], users=user, has_token=True,
+                                                       created_at=datetime.datetime.now(), updated_at=datetime.datetime.now())
+        print(datetime.datetime.now())
         fserializer = RefreshFireBaseTokenSerializer(refresht, many=False)
+
 
         serializer = UserSerializer(user, many=False)
         sms_itself = SMS.objects.create(phone_number=user.username,
