@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'device_id','fmc_token', 'is_active', 'username', 'email', 'first_name', 'last_name', 'user_type',
+            'id', 'device_id','fmc_token','fmc_token_updated_time', 'is_active', 'username', 'email', 'first_name', 'last_name', 'user_type',
             'token'
         )
 

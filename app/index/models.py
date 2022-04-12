@@ -1,8 +1,10 @@
 from django.db import models
 # Create your models here.
 from django.contrib.auth.models import AbstractUser
+
 upload_path = 'users'
 upload_image_path = 'users/images/'
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -15,5 +17,5 @@ class User(AbstractUser):
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, default=4)
     activation_code = models.IntegerField(null=True, blank=True)
     device_id = models.CharField(max_length=255, null=True)
-    fmc_token = models.TextField(null=True, blank=True,default="string")
-
+    fmc_token = models.TextField(null=True, blank=True, default="string")
+    fmc_token_updated_time = models.DateTimeField(auto_now=True)
