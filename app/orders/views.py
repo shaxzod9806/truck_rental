@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from .models import Order, OrderChecking, FireBaseNotification, RefreshFireBaseToken
+from .models import Order, OrderChecking, FireBaseNotification
 from index.models import User
 from customer.models import CustomerProfile
-from .serializers import OrderSerializer, FireBaseNotificationSerializer, RefreshFireBaseTokenSerializer
+from .serializers import OrderSerializer, FireBaseNotificationSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -66,41 +66,36 @@ class RefreshFireBaseTokenView(APIView):
         description='enter access token with Bearer word for example: Bearer token',
         type=openapi.TYPE_STRING)
 
+    fmc_token = openapi.Parameter(
+        'fmc_token', in_=openapi.IN_QUERY,
+        description='enter fmc_token',
+        type=openapi.TYPE_STRING
+    )
+
     # @swagger_auto_schema(request_body=openapi.Schema(
     #     type=openapi.TYPE_OBJECT,
     #     properties={
     #         'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
     #         'pre_password': openapi.Schema(type=openapi.TYPE_STRING, description='pre_password'),
     #         'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='user_id'),
+    #
     #     }
     # ))
-    @swagger_auto_schema(manual_parameters=[param_config], request_body=RefreshFireBaseTokenSerializer,
-                         parser_classes=parser_classes)
-    def post(self, request):
-        serializer = RefreshFireBaseTokenSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @swagger_auto_schema(manual_parameters=[param_config],)
+    # def post(self, request):
 
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
         usr = request.user
-        notifications = RefreshFireBaseToken.objects.filter(user=usr)
-        serializer = RefreshFireBaseTokenSerializer(notifications, many=True)
-        return Response(serializer.data)
+        fmc_token = User.objects.get(id=usr.id).fmc_token
+        return Response({'user': usr.username, 'first_name': usr.first_name, 'fmc_token': fmc_token})
 
-    @swagger_auto_schema(manual_parameters=[param_config], request_body=RefreshFireBaseTokenSerializer,
-                         parser_classes=parser_classes)
+    @swagger_auto_schema(manual_parameters=[param_config, fmc_token])
     def put(self, request):
         usr = request.user
-        notifications = RefreshFireBaseToken.objects.filter(user=usr)
-        serializer = RefreshFireBaseTokenSerializer(notifications, many=False, data=request.data,
-                                                    context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        fmc_token = request.query_params.get('fmc_token')
+        User.objects.filter(id=usr.id).update(fmc_token=fmc_token)
+        return Response({'user': usr.username, 'first_name': usr.first_name, 'fmc_token': fmc_token})
 
 
 class OrderAPIView(APIView, PaginationHandlerMixin):

@@ -12,8 +12,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'id', 'device_id', 'is_active', 'username', 'email', 'first_name', 'last_name', 'user_type',
-            'token')
+            'id', 'device_id','fmc_token', 'is_active', 'username', 'email', 'first_name', 'last_name', 'user_type',
+            'token'
+        )
 
     def get_token(self, obj):
         token = AccessToken.for_user(obj)

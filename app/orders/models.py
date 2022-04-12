@@ -59,8 +59,8 @@ class FireBaseNotification(models.Model):
     body = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, default=None)
     type_notification = models.IntegerField(choices=TYPE_CHOICES, default=3)
-    oreder_id = models.IntegerField(null=True, blank=True, default=None)
-    image_url = models.CharField(max_length=255, null=True)
+    oreder_id = models.IntegerField(null=True, blank=True, default=1)
+    image_url = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -68,12 +68,12 @@ class FireBaseNotification(models.Model):
     #     return self.id
 
 
-class RefreshFireBaseToken(models.Model):
-    fmc_token = models.TextField(null=True, blank=True)
-    has_token = models.BooleanField(default=False)
-    users = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
+# class RefreshFireBaseToken(models.Model):
+#     fmc_token = models.TextField(null=True, blank=True,default="string")
+#     has_token = models.BooleanField(default=False)
+#     users = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, default=None)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+    #
     # def __str__(self):
     #     return self.created_at
