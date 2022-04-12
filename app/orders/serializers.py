@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Order, OrderChecking, FireBaseNotification, RefreshFireBaseToken
+from .models import Order, OrderChecking, FireBaseNotification
 from customer.models import CustomerProfile
 from index.models import User
 from equipments.models import Equipment
@@ -13,18 +13,16 @@ class FireBaseNotificationSerializer(serializers.ModelSerializer):
         model = FireBaseNotification
         fields = '__all__'
 
-
-class RefreshFireBaseTokenSerializer(serializers.ModelSerializer):
-    token = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = RefreshFireBaseToken
-        fields = ['token', "fmc_token", "has_token", "users", "created_at", "updated_at"]
-
-    def get_token(self, obj):
-        token = AccessToken.for_user(obj)
-        return str(token)
-
+# class RefreshFireBaseTokenSerializer(serializers.ModelSerializer):
+#     token = serializers.SerializerMethodField(read_only=True)
+#
+#     class Meta:
+#         model = RefreshFireBaseToken
+#         fields = ['token', "fmc_token", "has_token", "users", "created_at", "updated_at"]
+#
+#     def get_token(self, obj):
+#         token = AccessToken.for_user(obj)
+#         return str(token)
 
 class OrderSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField("get_customer_name")
