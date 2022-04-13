@@ -152,10 +152,6 @@ class UserRegister(CreateAPIView):
         )
 
         serializer = UserSerializer(user, many=False)
-        # refresht = RefreshFireBaseToken.objects.create(fmc_token=data["fmc_token"], users=user, has_token=True,
-        #                                                created_at=datetime.datetime.now(),
-        #                                                updated_at=datetime.datetime.now())
-        # fserializer = RefreshFireBaseTokenSerializer(refresht, many=False)
         sms_itself = SMS.objects.create(phone_number=user.username,
                                         text=data["first_name"] + " bu sizning Tasdiqlash kodingiz: " + str(
                                             random_number))

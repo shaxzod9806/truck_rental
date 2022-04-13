@@ -54,8 +54,8 @@ def send_accepted_sms(customer, sms, start_time, end_time, price, address):
                                     start time: {start_time},
                                     end time: {end_time},
                                     """)
-    print(
-        "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    # print(
+    #     "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     send_sms(number=sms_itself.phone_number, text=sms_itself.text, sms_id=sms_itself.id)
     sms_itself.is_sent = 1
     sms_itself.save()
