@@ -94,8 +94,10 @@ class RefreshFireBaseTokenView(APIView):
     def put(self, request):
         usr = request.user
         fmc_token = request.query_params.get('fmc_token')
+        old_fmc_token = User.objects.get(id=usr.id).fmc_token
         User.objects.filter(id=usr.id).update(fmc_token=fmc_token)
-        return Response({'user': usr.username, 'first_name': usr.first_name, 'fmc_token': fmc_token})
+        return Response({'user': usr.username, 'first_name': usr.first_name, 'old_fmc_token': old_fmc_token,
+                         'fmc_token': fmc_token})
 
 
 class OrderAPIView(APIView, PaginationHandlerMixin):
@@ -293,48 +295,55 @@ class OrderAcceptAPI(APIView):
             if is_accept == 3:
                 send_accepted_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
                                   order_itself.order_price, order_itself.address)
-                # title = "order accepted"
-                # body = "renter orderingizni qabul qildi"
-                # usr = order_itself.customer.user
-                # # type_notification = "order accepted"
-                # image_url = "image.jpg"
-                # # fms_token = user.fms_token
+                title = "order accepted"
+                body = "renter orderingizni qabul qildi"
+                usr = order_itself.customer
+                print("==========================================================")
+
+                print(usr)
+                # type_notification = "order accepted"
+                image_url = "image.jpg"
+                fcm_token = usr.fmc_token
                 # fms_token = RefreshFireBaseToken.objects.get(users=user).fms_token
-                # # fms_token = "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK"
-                # notif = send_notification(title=title, body=body, image_url=image_url, fms_token=fms_token)
-                # fb_notif = FireBaseNotification.objects.create(
-                #     title=title,
-                #     body=body,
-                #     user=usr,
-                #     type_notification=1,
-                #     order_id=order_id,
-                #     image_url=image_url,
-                #     created_at=datetime.now(),
-                #     updated_at=datetime.now(),
-                # )
+                print("==========================================================")
+                print(fcm_token)
+                # fms_token = "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK"
+                notif = send_notification(title=title, body=body, image_url=image_url, fcm_token=fcm_token)
+                fb_notif = FireBaseNotification.objects.create(
+                    title=title,
+                    body=body,
+                    user=usr,
+                    type_notification=1,
+                    oreder_id=order_itself.id,
+                    image_url=image_url,
+                    created_at=datetime.now(),
+                    updated_at=datetime.now(),
+                )
+                serializer = FireBaseNotificationSerializer(fb_notif,many=False)
+                print(fb_notif.oreder_id)
                 return Response({"details": "order accepted"}, status=status.HTTP_200_OK)
             elif is_accept == 2:
                 send_canceled_sms(order_itself.customer, SMS, order_itself.start_time, order_itself.end_time,
                                   order_itself.order_price, order_itself.address)
-                # title = "order canceled"
-                # body = "renter orderingizni qabul qilmadi"
-                # usr = order_itself.customer.user
-                # # type_notification = "order accepted"
-                # image_url = "image.jpg"
-                # # fms_token = user.fms_token
-                # fms_token = RefreshFireBaseToken.objects.get(users=user).fms_token
-                # # fms_token = "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK"
-                # notif = send_notification(title=title, body=body, image_url=image_url, fms_token=fms_token)
-                # fb_notif = FireBaseNotification.objects.create(
-                #     title=title,
-                #     body=body,
-                #     user=usr,
-                #     type_notification=1,
-                #     order_id=order_id,
-                #     image_url=image_url,
-                #     created_at=datetime.now(),
-                #     updated_at=datetime.now(),
-                # )
+                title = "order canceled"
+                body = "renter orderingizni qabul qilmadi"
+                usr = order_itself.customer.user
+                # type_notification = "order accepted"
+                image_url = "image.jpg"
+                # fms_token = user.fms_token
+                fms_token = RefreshFireBaseToken.objects.get(users=user).fms_token
+                # fms_token = "e9_-MzJ3Se2VUhVnCFoLo3:APA91bHFIjL0zw0qqHvbmeFaYpfJMFXMnjpQBErPGSIlPIN8_pNpn4siVbP3fyA_lJYo_ohU1XtKiD8aBethRh_sqWkwTadzFWHQnKMaRk0wUq3iztyCfwyLM_RaZeW2q5qFnTdlKblK"
+                notif = send_notification(title=title, body=body, image_url=image_url, fms_token=fms_token)
+                fb_notif = FireBaseNotification.objects.create(
+                    title=title,
+                    body=body,
+                    user=usr,
+                    type_notification=1,
+                    order_id=order_id,
+                    image_url=image_url,
+                    created_at=datetime.now(),
+                    updated_at=datetime.now(),
+                )
                 return Response({"details": "order canceled"}, status=status.HTTP_200_OK)
         else:
             return Response({"details": "there is already accepted renter"}, status=status.HTTP_400_BAD_REQUEST)
