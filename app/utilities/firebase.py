@@ -28,10 +28,10 @@ def send_notification(title, body, fcm_token, image_url):
                     "notification": {
                         "title": title,
                         "body": body,
-                        # "image": image_url
+                        "image": image_url
                     },
                     "data": {
-                        # "url": image_url
+                        "url": image_url
                     }
                     }
     data = json.dumps(request_body)
