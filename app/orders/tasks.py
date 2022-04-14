@@ -5,6 +5,7 @@ from utilities.mapping import find_near_cron
 from .models import OrderChecking, Order
 from renter.models import Profile, RenterProduct
 
+
 @app.task
 def move_renter():
     today = datetime.datetime.today().date()
