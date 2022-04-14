@@ -182,7 +182,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
 
@@ -208,7 +208,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 firebase_cred = f"{BASE_DIR}/firebase.json"
 
 
-REDIS_HOST = '0.0.0.0'
+
+REDIS_HOST = 'cache'
 REDIS_PORT = '6379'
 CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
 CELERY_BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
