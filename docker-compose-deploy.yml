@@ -12,7 +12,7 @@ services:
              celery -A motochas worker  &&
              celery -A motochas beat"    
     volumes:
-      - static-data:/vol/web
+      - moto-static-data:/vol/web
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
@@ -28,7 +28,7 @@ services:
     image: postgres:13-alpine
     restart: always
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - moto-postgres-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
@@ -45,7 +45,7 @@ services:
     ports:
       - 80:8000
     volumes:
-      - static-data:/vol/static
+      - moto-static-data:/vol/static
     networks:
       - moto-network      
   cache:
@@ -64,7 +64,7 @@ services:
       sh -c "celery -A motochas worker  &&
              celery -A motochas beat"
     volumes:
-      - static-data:/vol/web
+      - moto-static-data:/vol/web
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
@@ -84,5 +84,5 @@ networks:
   moto-network:
     driver: bridge
 volumes:
-  postgres-data:
-  static-data:
+  moto-postgres-data:
+  moto-static-data:
