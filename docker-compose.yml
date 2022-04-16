@@ -41,8 +41,7 @@ services:
     build:
       context: .
     command: >
-      sh -c "celery -A motochas worker  &&
-             celery -A motochas beat"
+      sh -c "celery -A motochas worker -l INFO"
     volumes:
       - ./app:/app
       - ./data/web:/vol/web
