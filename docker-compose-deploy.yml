@@ -5,6 +5,12 @@ services:
     build:
       context: .
     restart: always
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000 &&
+             celery -A motochas worker  &&
+             celery -A motochas beat"    
     volumes:
       - static-data:/vol/web
     environment:
@@ -36,6 +42,33 @@ services:
       - 80:8000
     volumes:
       - static-data:/vol/static
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+  celery:
+    build:
+      context: .
+    command: >
+      sh -c "celery -A motochas worker  &&
+             celery -A motochas beat"
+    volumes:
+      - static-data:/vol/web
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+    depends_on:
+      - db
+      - cache
+      - app
+    links:
+      - "cache"      
 
 volumes:
   postgres-data:
