@@ -21,6 +21,8 @@ services:
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
     depends_on:
       - db
+    networks:
+      - moto-network
 
   db:
     image: postgres:13-alpine
@@ -31,6 +33,8 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
+    networks:
+      - moto-network      
 
   proxy:
     build:
@@ -42,6 +46,8 @@ services:
       - 80:8000
     volumes:
       - static-data:/vol/static
+    networks:
+      - moto-network      
   cache:
     image: redis:6.2-alpine
     restart: always
@@ -49,6 +55,8 @@ services:
       - '6379:6379'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - moto-network      
   celery:
     build:
       context: .
@@ -68,8 +76,13 @@ services:
       - cache
       - app
     links:
-      - "cache"      
+      - "cache"
+    networks:
+      - moto-network      
 
+networks:
+  moto-network:
+    driver: bridge
 volumes:
   postgres-data:
   static-data:
