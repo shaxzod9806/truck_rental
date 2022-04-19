@@ -14,7 +14,7 @@ def move_renter():
         difference_t = (datetime.datetime.now(tz=pytz.timezone('Etc/GMT+5')) - checking.checking_start).total_seconds()
         minutes = float(difference_t) / 60
         if checking.confirmed == 1:
-            if minutes > float(15):
+            if minutes > float(1):
                 checking.confirmed = 4
                 checking.save()
                 lat = checking.order.lat

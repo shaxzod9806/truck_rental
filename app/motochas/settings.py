@@ -204,10 +204,7 @@ STATIC_ROOT = '/vol/web/static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 firebase_cred = f"{BASE_DIR}/firebase.json"
-
-
 
 REDIS_HOST = 'cache'
 REDIS_PORT = '6379'

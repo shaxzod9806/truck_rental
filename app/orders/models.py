@@ -46,7 +46,7 @@ class OrderChecking(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     checking_start = models.DateTimeField(auto_now_add=True)
     checking_end = models.DateTimeField()
-    confirmed = models.SmallIntegerField(max_length=255, choices=order_status)
+    confirmed = models.SmallIntegerField(choices=order_status)
 
 
 class FireBaseNotification(models.Model):

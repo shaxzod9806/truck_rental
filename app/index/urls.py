@@ -1,7 +1,10 @@
 from . import views
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 urlpatterns = [
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('SecondRegistration_userID_API/', views.SecondRegistration_userID_API.as_view(),
          name='SecondRegistrati_userID_API'),
     path('SecondRegistrationAPI/', views.SecondRegistrationAPI.as_view(), name='SecondRegistrationAPI'),
