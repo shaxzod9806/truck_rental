@@ -8,14 +8,21 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 class UserSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = User
         fields = (
-            'id', 'device_id','fmc_token','fmc_token_updated_time', 'is_active', 'username', 'email', 'first_name', 'last_name', 'user_type',
+            'id', 'device_id', 'fmc_token', 'fmc_token_updated_time', 'is_active', 'username', 'email', 'first_name',
+            'last_name', 'user_type',
             'token'
         )
+
     def get_token(self, obj):
         token = AccessToken.for_user(obj)
+        return str(token)
+
+    def get_tefresh(self, obj):
+        token = RefreshToken.for_user(obj)
         return str(token)
 
 

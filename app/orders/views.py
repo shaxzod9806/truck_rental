@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .models import Order, OrderChecking, FireBaseNotification
 from index.models import User
+from renter.serializers import UserSerializer
 from customer.models import CustomerProfile
 from .serializers import OrderSerializer, FireBaseNotificationSerializer
 from rest_framework.views import APIView
@@ -57,6 +58,10 @@ class FireBaseView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+
 class RefreshFireBaseTokenView(APIView):
     # permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
@@ -83,20 +88,33 @@ class RefreshFireBaseTokenView(APIView):
     # ))
     # @swagger_auto_schema(manual_parameters=[param_config],)
     # def post(self, request):
-
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
         usr = request.user
         fmc_token = User.objects.get(id=usr.id).fmc_token
-        return Response({'user': usr.username, 'first_name': usr.first_name, 'fmc_token': fmc_token})
+        # token = AccessToken.for_user(usr)
+        print("==========================================================")
+        # print(token)
+        # print(type(token))
+        serializer = UserSerializer(usr)
+        tokenACC = serializer.data['token']
+        print(tokenACC)
+        print("==========================================================")
+        return Response(
+            {'user': usr.username, 'first_name': usr.first_name, 'fmc_token': fmc_token, 'token': tokenACC}
+        )
 
+    # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjUwNzgxNDg4LCJpYXQiOjE2NTAzNDk0ODgsImp0aSI6ImJmZDg3N2RlMGY1MDRkYzJhMzU0NmYzMWQ4NDUxODlmIiwidXNlcl9pZCI6M30.rHU1mVf - jopCl19W_zKUWgTG4VRiuBB9ReoVlEM31a8
+    # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjUwNzgxOTIwLCJpYXQiOjE2NTAzNDk5MjAsImp0aSI6ImNmNjUxZWU3NDYxYTQ4ZDdhNWY5MzlhYjFiYjllM2ZmIiwidXNlcl9pZCI6M30.mTlPmd_vGZl - hPLkutOv6eDsYdgoAl7XhUV44TO0oMs
     @swagger_auto_schema(manual_parameters=[param_config, fmc_token])
     def put(self, request):
         usr = request.user
         fmc_token = request.query_params.get('fmc_token')
-        old_fmc_token = User.objects.get(id=usr.id).fmc_token
         User.objects.filter(id=usr.id).update(fmc_token=fmc_token)
-        return Response({'user': usr.username, 'first_name': usr.first_name, 'old_fmc_token': old_fmc_token,
+        token = AccessToken.for_user(user=usr)
+        print(token)
+        # user_refresh_token = User.objects.get(id=usr.id)
+        return Response({'user': usr.username, 'first_name': usr.first_name,
                          'fmc_token': fmc_token})
 
 

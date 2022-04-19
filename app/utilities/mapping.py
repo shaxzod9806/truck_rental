@@ -46,6 +46,20 @@ def find_near_equipment(user_lat, user_long):
         return minimum
     else:
         return kms[0]
+
+
+def find_near_cron(user_lat, user_long):
+    renter_products = RenterProduct.objects.all().values()
+    kms = []
+    for equipment in renter_products:
+        lat = equipment["latitude"]
+        long = equipment["longitude"]
+        km = dist(lat, long, user_lat, user_long)
+        renter_id = equipment["renter_id"]
+        product_id = equipment["id"]
+        mini_dict = {"product_id": product_id, "renter_id": renter_id, "km": km}
+        kms.append(mini_dict)
+    return kms
 # user_lat = 41.31090537318465
 # user_long = 69.28148097265912
 # kms = [{'product_id': 1, 'renter_id': 1, 'km': 7.437136503158664},
