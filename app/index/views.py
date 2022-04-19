@@ -148,9 +148,10 @@ class UserRegister(CreateAPIView):
             user_type=data["user_type"],
             is_active=False,
             activation_code=random_number,
-            device_id=data["device_id"]
+            device_id=data["device_id"],
+            fmc_token=data["fmc_token"]
         )
-
+        # fmc_token = data["fmc_token"]
         serializer = UserSerializer(user, many=False)
         sms_itself = SMS.objects.create(phone_number=user.username,
                                         text=data["first_name"] + " bu sizning Tasdiqlash kodingiz: " + str(
