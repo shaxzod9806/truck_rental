@@ -8,8 +8,8 @@ services:
       sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000 &&
-             celery -A motochas worker -l info &&
-             celery -A motochas beat -l info"
+             celery -A motochas worker  &&
+             celery -A motochas beat"
     ports:
       - "8000:8000"
     volumes:
@@ -25,7 +25,7 @@ services:
     depends_on:
       - db
     networks:
-      - elastic
+      - elastic  
 
   cache:
     image: redis:6.2-alpine
@@ -37,21 +37,39 @@ services:
     networks:
       - elastic
 
-
+  celery:
+    build:
+      context: .
+    command: >
+      sh -c "celery -A motochas worker -l INFO"
+    volumes:
+      - ./app:/app
+      - ./data/web:/vol/web
+    environment:
+      - SECRET_KEY=devsecretkey
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+    depends_on:
+      - db
+      - cache
+      - app
+    links:
+      - "cache"
+    networks:
+      - elastic
   db:
     image: postgres:13-alpine
     environment:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
-    
-
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
       - elastic
-
-
     restart: unless-stopped
 
 
