@@ -92,16 +92,8 @@ class RefreshFireBaseTokenView(APIView):
     def get(self, request):
         usr = request.user
         fmc_token = User.objects.get(id=usr.id).fmc_token
-        # token = AccessToken.for_user(usr)
-        print("==========================================================")
-        # print(token)
-        # print(type(token))
-        serializer = UserSerializer(usr)
-        tokenACC = serializer.data['token']
-        print(tokenACC)
-        print("==========================================================")
         return Response(
-            {'user': usr.username, 'first_name': usr.first_name, 'fmc_token': fmc_token, 'token': tokenACC}
+            {'user': usr.username, 'first_name': usr.first_name, 'fmc_token': fmc_token}
         )
 
     # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjUwNzgxNDg4LCJpYXQiOjE2NTAzNDk0ODgsImp0aSI6ImJmZDg3N2RlMGY1MDRkYzJhMzU0NmYzMWQ4NDUxODlmIiwidXNlcl9pZCI6M30.rHU1mVf - jopCl19W_zKUWgTG4VRiuBB9ReoVlEM31a8
@@ -114,8 +106,16 @@ class RefreshFireBaseTokenView(APIView):
         token = AccessToken.for_user(user=usr)
         print(token)
         # user_refresh_token = User.objects.get(id=usr.id)
+        # token = AccessToken.for_user(usr)
+        print("==========================================================")
+        # print(token)
+        # print(type(token))
+        serializer = UserSerializer(usr)
+        tokenACC = serializer.data['token']
+        print(tokenACC)
+        print("==========================================================")
         return Response({'user': usr.username, 'first_name': usr.first_name,
-                         'fmc_token': fmc_token})
+                         'fmc_token': fmc_token,'token': tokenACC})
 
 
 class OrderAPIView(APIView, PaginationHandlerMixin):
