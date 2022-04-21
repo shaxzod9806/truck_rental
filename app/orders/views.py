@@ -60,10 +60,18 @@ class FireBaseView(APIView):
 
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 
 class RefreshFireBaseTokenView(APIView):
-    # permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
     param_config = openapi.Parameter(
         'Authorization',
@@ -71,23 +79,6 @@ class RefreshFireBaseTokenView(APIView):
         description='enter access token with Bearer word for example: Bearer token',
         type=openapi.TYPE_STRING)
 
-    fmc_token = openapi.Parameter(
-        'fmc_token', in_=openapi.IN_QUERY,
-        description='enter fmc_token',
-        type=openapi.TYPE_STRING
-    )
-
-    # @swagger_auto_schema(request_body=openapi.Schema(
-    #     type=openapi.TYPE_OBJECT,
-    #     properties={
-    #         'password': openapi.Schema(type=openapi.TYPE_STRING, description='password'),
-    #         'pre_password': openapi.Schema(type=openapi.TYPE_STRING, description='pre_password'),
-    #         'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='user_id'),
-    #
-    #     }
-    # ))
-    # @swagger_auto_schema(manual_parameters=[param_config],)
-    # def post(self, request):
     @swagger_auto_schema(manual_parameters=[param_config])
     def get(self, request):
         usr = request.user
@@ -96,26 +87,35 @@ class RefreshFireBaseTokenView(APIView):
             {'user': usr.username, 'first_name': usr.first_name, 'fmc_token': fmc_token}
         )
 
-    # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjUwNzgxNDg4LCJpYXQiOjE2NTAzNDk0ODgsImp0aSI6ImJmZDg3N2RlMGY1MDRkYzJhMzU0NmYzMWQ4NDUxODlmIiwidXNlcl9pZCI6M30.rHU1mVf - jopCl19W_zKUWgTG4VRiuBB9ReoVlEM31a8
-    # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjUwNzgxOTIwLCJpYXQiOjE2NTAzNDk5MjAsImp0aSI6ImNmNjUxZWU3NDYxYTQ4ZDdhNWY5MzlhYjFiYjllM2ZmIiwidXNlcl9pZCI6M30.mTlPmd_vGZl - hPLkutOv6eDsYdgoAl7XhUV44TO0oMs
-    @swagger_auto_schema(manual_parameters=[param_config, fmc_token])
+    fmc_token = openapi.Parameter(
+        'fmc_token', in_=openapi.IN_QUERY,
+        description='enter fmc_token',
+        type=openapi.TYPE_STRING
+    )
+    user_id = openapi.Parameter(
+        'user_id', in_=openapi.IN_QUERY,
+        description='enter user id',
+        type=openapi.TYPE_INTEGER
+    )
+    acc_token = openapi.Parameter(
+        'acc_token', in_=openapi.IN_QUERY,
+        description='enter token',
+        type=openapi.TYPE_STRING
+    )
+
+    @swagger_auto_schema(manual_parameters=[acc_token, fmc_token, user_id])
     def put(self, request):
-        usr = request.user
-        fmc_token = request.query_params.get('fmc_token')
-        User.objects.filter(id=usr.id).update(fmc_token=fmc_token)
-        token = AccessToken.for_user(user=usr)
-        print(token)
+        user_id = request.GET.get('user_id')
+        fmc_token_new = request.GET.get('fmc_token')
+        fmc_token = User.objects.filter(id=user_id).update(fmc_token=fmc_token_new)
+        usr = User.objects.get(id=user_id)
+        tokens = get_tokens_for_user(usr)
+        # token = AccessToken.for_user(user=usr)
+        # print(tokens)
         # user_refresh_token = User.objects.get(id=usr.id)
         # token = AccessToken.for_user(usr)
-        print("==========================================================")
-        # print(token)
-        # print(type(token))
-        serializer = UserSerializer(usr)
-        tokenACC = serializer.data['token']
-        print(tokenACC)
-        print("==========================================================")
         return Response({'user': usr.username, 'first_name': usr.first_name,
-                         'fmc_token': fmc_token,'token': tokenACC})
+                         'fmc_token': fmc_token_new, 'token': tokens})
 
 
 class OrderAPIView(APIView, PaginationHandlerMixin):
